@@ -1,0 +1,1900 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>نظام تموين شرق جدة</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap');
+
+  :root {
+    --bg: #0a0f1e;
+    --surface: #111827;
+    --surface2: #1a2332;
+    --border: #1e3a5f;
+    --accent: #0ea5e9;
+    --accent2: #38bdf8;
+    --green: #22c55e;
+    --red: #ef4444;
+    --yellow: #f59e0b;
+    --text: #e2e8f0;
+    --text2: #94a3b8;
+    --card: #131f30;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'IBM Plex Sans Arabic', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    direction: rtl;
+  }
+
+  /* ===== HEADER ===== */
+  .header {
+    background: linear-gradient(135deg, #0d1b2a 0%, #1a2332 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .header-icon {
+    width: 36px;
+    height: 36px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+
+  .header h1 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .header p {
+    font-size: 11px;
+    color: var(--text2);
+  }
+
+  .header-badge {
+    background: var(--accent);
+    color: white;
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+
+  /* ===== TABS ===== */
+  .tabs {
+    display: flex;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .tabs::-webkit-scrollbar { display: none; }
+
+  .tab {
+    flex: 1;
+    min-width: 80px;
+    padding: 12px 8px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text2);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    background: rgba(14,165,233,0.05);
+  }
+
+  .tab-icon { font-size: 16px; display: block; margin-bottom: 2px; }
+
+  /* ===== SCREENS ===== */
+  .screen { display: none; padding: 16px; }
+  .screen.active { display: block; }
+
+  /* ===== FORM CARD ===== */
+  .form-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+
+  .form-card h2 {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: var(--accent2);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .step-indicator {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .step {
+    flex: 1;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--border);
+    transition: background 0.3s;
+  }
+
+  .step.done { background: var(--green); }
+  .step.active { background: var(--accent); }
+
+  /* ===== LABELS & INPUTS ===== */
+  label {
+    display: block;
+    font-size: 12px;
+    color: var(--text2);
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+
+  select, input[type="number"] {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'IBM Plex Sans Arabic', sans-serif;
+    font-size: 14px;
+    padding: 12px 14px;
+    margin-bottom: 14px;
+    appearance: none;
+    -webkit-appearance: none;
+    outline: none;
+    transition: border 0.2s;
+    direction: rtl;
+  }
+
+  select:focus, input[type="number"]:focus {
+    border-color: var(--accent);
+  }
+
+  select option { background: var(--surface2); }
+
+  /* ===== MOVEMENT TYPE ===== */
+  .movement-btns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .mov-btn {
+    padding: 14px;
+    border-radius: 12px;
+    border: 2px solid var(--border);
+    background: var(--surface2);
+    color: var(--text2);
+    font-family: 'IBM Plex Sans Arabic', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+  }
+
+  .mov-btn .mov-icon { font-size: 24px; display: block; margin-bottom: 4px; }
+
+  .mov-btn.selected-add {
+    border-color: var(--green);
+    background: rgba(34,197,94,0.1);
+    color: var(--green);
+  }
+
+  .mov-btn.selected-sub {
+    border-color: var(--red);
+    background: rgba(239,68,68,0.1);
+    color: var(--red);
+  }
+
+  /* ===== SUBMIT BTN ===== */
+  .btn-submit {
+    width: 100%;
+    padding: 16px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-family: 'IBM Plex Sans Arabic', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 4px;
+  }
+
+  .btn-submit:active { transform: scale(0.98); opacity: 0.9; }
+  .btn-submit:disabled { background: var(--border); cursor: not-allowed; }
+
+  /* ===== SUCCESS ===== */
+  .success-card {
+    display: none;
+    background: rgba(34,197,94,0.1);
+    border: 1px solid var(--green);
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+    margin-bottom: 16px;
+  }
+
+  .success-card.show { display: block; }
+  .success-icon { font-size: 48px; margin-bottom: 12px; }
+  .success-card h3 { color: var(--green); font-size: 16px; margin-bottom: 6px; }
+  .success-card p { color: var(--text2); font-size: 13px; }
+
+  .btn-new {
+    width: 100%;
+    padding: 14px;
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    border-radius: 12px;
+    font-family: 'IBM Plex Sans Arabic', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 12px;
+  }
+
+  /* ===== DASHBOARD ===== */
+  .dash-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    text-align: center;
+  }
+
+  .stat-num {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .stat-label { font-size: 11px; color: var(--text2); }
+  .stat-green { color: var(--green); }
+  .stat-red { color: var(--red); }
+  .stat-yellow { color: var(--yellow); }
+  .stat-blue { color: var(--accent); }
+
+  .section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text2);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .center-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .center-card:active { transform: scale(0.99); }
+
+  .center-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .center-name { font-size: 14px; font-weight: 600; }
+
+  .center-badge {
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-weight: 600;
+  }
+
+  .badge-ok { background: rgba(34,197,94,0.15); color: var(--green); }
+  .badge-warn { background: rgba(239,68,68,0.15); color: var(--red); }
+
+  .center-bar-bg {
+    background: var(--border);
+    border-radius: 4px;
+    height: 6px;
+    overflow: hidden;
+    margin-bottom: 6px;
+  }
+
+  .center-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s ease;
+  }
+
+  .center-stats {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--text2);
+  }
+
+  /* ===== ALERT ITEMS ===== */
+  .alert-item {
+    background: rgba(239,68,68,0.08);
+    border: 1px solid rgba(239,68,68,0.3);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .alert-item-name { font-size: 13px; font-weight: 500; }
+  .alert-item-sub { font-size: 11px; color: var(--text2); margin-top: 2px; }
+  .alert-qty { font-size: 20px; font-weight: 700; color: var(--red); }
+
+  /* ===== HISTORY ===== */
+  .history-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .history-info { flex: 1; }
+  .history-name { font-size: 13px; font-weight: 500; }
+  .history-meta { font-size: 11px; color: var(--text2); margin-top: 2px; }
+
+  .history-qty {
+    font-size: 16px;
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: 8px;
+  }
+
+  .qty-add { background: rgba(34,197,94,0.15); color: var(--green); }
+  .qty-sub { background: rgba(239,68,68,0.15); color: var(--red); }
+
+  /* ===== LOADING ===== */
+  .loading {
+    text-align: center;
+    padding: 40px;
+    color: var(--text2);
+    font-size: 14px;
+  }
+
+  .spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 12px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ===== DETAIL VIEW ===== */
+  .detail-view {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    z-index: 200;
+    overflow-y: auto;
+  }
+
+  .detail-view.show { display: block; }
+
+  .detail-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .back-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .detail-content { padding: 16px; }
+
+  .category-section { margin-bottom: 16px; }
+
+  .category-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 6px 10px;
+    background: rgba(14,165,233,0.08);
+    border-radius: 6px;
+    margin-bottom: 8px;
+  }
+
+  .item-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 4px;
+    border-bottom: 1px solid rgba(30,58,95,0.4);
+  }
+
+  .item-row:last-child { border-bottom: none; }
+  .item-row-name { font-size: 13px; }
+  .item-row-right { display: flex; align-items: center; gap: 10px; }
+
+  .item-qty {
+    font-size: 15px;
+    font-weight: 700;
+    min-width: 36px;
+    text-align: center;
+  }
+
+  .item-status {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  .status-ok { background: var(--green); }
+  .status-warn { background: var(--red); box-shadow: 0 0 6px var(--red); }
+
+  /* ===== ANALYTICS (SECRET) ===== */
+  .analytics-lock {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px 20px;
+    text-align: center;
+    margin-bottom: 16px;
+  }
+
+  .lock-icon { font-size: 48px; margin-bottom: 12px; }
+  .analytics-lock h3 { font-size: 16px; margin-bottom: 6px; }
+  .analytics-lock p { color: var(--text2); font-size: 13px; margin-bottom: 20px; }
+
+  .pin-input {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+
+  .pin-digit {
+    width: 48px;
+    height: 56px;
+    background: var(--surface2);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    color: var(--text);
+    font-size: 22px;
+    font-weight: 700;
+    text-align: center;
+    font-family: monospace;
+    outline: none;
+    direction: ltr;
+  }
+
+  .pin-digit:focus { border-color: var(--accent); }
+
+  .btn-unlock {
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 32px;
+    font-family: 'IBM Plex Sans Arabic', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .analytics-content { display: none; }
+  .analytics-content.show { display: block; }
+
+  .analytics-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+
+  .analytics-card h3 {
+    font-size: 13px;
+    color: var(--text2);
+    margin-bottom: 14px;
+    font-weight: 600;
+  }
+
+  .chart-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .chart-bar-label { font-size: 11px; color: var(--text2); min-width: 90px; text-align: right; }
+  .chart-bar-bg { flex: 1; height: 20px; background: var(--border); border-radius: 4px; overflow: hidden; }
+  .chart-bar-fill { height: 100%; border-radius: 4px; display: flex; align-items: center; padding-right: 6px; font-size: 10px; font-weight: 700; color: white; }
+  .chart-bar-val { font-size: 12px; font-weight: 600; min-width: 30px; }
+
+  .table-wrap { overflow-x: auto; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    direction: rtl;
+  }
+
+  th {
+    background: var(--surface2);
+    padding: 8px 10px;
+    text-align: right;
+    font-weight: 600;
+    color: var(--text2);
+    border-bottom: 1px solid var(--border);
+  }
+
+  td {
+    padding: 8px 10px;
+    border-bottom: 1px solid rgba(30,58,95,0.3);
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 600;
+  }
+
+  .tag-add { background: rgba(34,197,94,0.15); color: var(--green); }
+  .tag-sub { background: rgba(239,68,68,0.15); color: var(--red); }
+
+  .pin-error { color: var(--red); font-size: 12px; margin-top: 8px; display: none; }
+
+  /* ===== CAMERA SCAN ===== */
+  .scan-btn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #1a2332, #0d1b2a);
+    border: 2px dashed var(--accent);
+    border-radius: 12px;
+    color: var(--accent);
+    font-family: 'IBM Plex Sans Arabic', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    transition: all 0.2s;
+  }
+
+  .scan-btn:active { transform: scale(0.98); }
+
+  .scan-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.95);
+    z-index: 300;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .scan-overlay.show { display: flex; }
+
+  .scan-preview {
+    width: 100%;
+    max-width: 360px;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 2px solid var(--accent);
+    position: relative;
+    background: #000;
+  }
+
+  #cameraFeed {
+    width: 100%;
+    display: block;
+    max-height: 300px;
+    object-fit: cover;
+  }
+
+  #capturedImg {
+    width: 100%;
+    display: none;
+    max-height: 300px;
+    object-fit: cover;
+    border-radius: 14px;
+  }
+
+  .scan-corner {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    border-color: var(--accent);
+    border-style: solid;
+    border-width: 0;
+  }
+
+  .scan-corner.tl { top: 10px; right: 10px; border-top-width: 3px; border-right-width: 3px; border-radius: 0 4px 0 0; }
+  .scan-corner.tr { top: 10px; left: 10px; border-top-width: 3px; border-left-width: 3px; border-radius: 4px 0 0 0; }
+  .scan-corner.bl { bottom: 10px; right: 10px; border-bottom-width: 3px; border-right-width: 3px; border-radius: 0 0 0 4px; }
+  .scan-corner.br { bottom: 10px; left: 10px; border-bottom-width: 3px; border-left-width: 3px; border-radius: 0 0 4px 0; }
+
+  .scan-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+    width: 100%;
+    max-width: 360px;
+  }
+
+  .btn-capture {
+    flex: 1;
+    padding: 14px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-family: 'IBM Plex Sans Arabic', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .btn-cancel-scan {
+    padding: 14px 20px;
+    background: var(--surface2);
+    color: var(--text2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    font-family: 'IBM Plex Sans Arabic', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  .btn-retake {
+    flex: 1;
+    padding: 14px;
+    background: var(--surface2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    font-family: 'IBM Plex Sans Arabic', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: none;
+  }
+
+  .btn-analyze {
+    flex: 1;
+    padding: 14px;
+    background: var(--green);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-family: 'IBM Plex Sans Arabic', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    display: none;
+  }
+
+  .scan-status {
+    margin-top: 14px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--text2);
+    width: 100%;
+    max-width: 360px;
+  }
+
+  .scan-result-card {
+    display: none;
+    background: rgba(34,197,94,0.1);
+    border: 1px solid var(--green);
+    border-radius: 14px;
+    padding: 16px;
+    margin-top: 12px;
+    width: 100%;
+    max-width: 360px;
+    text-align: center;
+  }
+
+  .scan-result-card.show { display: block; }
+  .scan-result-item { font-size: 16px; font-weight: 700; color: var(--green); margin-bottom: 4px; }
+  .scan-result-cat { font-size: 12px; color: var(--text2); margin-bottom: 12px; }
+
+  .btn-use-result {
+    width: 100%;
+    padding: 12px;
+    background: var(--green);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-family: 'IBM Plex Sans Arabic', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .upload-btn {
+    width: 100%;
+    padding: 12px;
+    background: transparent;
+    color: var(--text2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-family: 'IBM Plex Sans Arabic', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    margin-top: 8px;
+  }
+
+  .ai-thinking {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    color: var(--accent);
+    font-size: 13px;
+    margin-top: 10px;
+  }
+
+  .ai-thinking.show { display: flex; justify-content: center; }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 360px) {
+    .dash-grid { grid-template-columns: 1fr 1fr; }
+    .movement-btns { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* ===== LOGIN SCREEN ===== */
+  .login-screen {
+    position: fixed; inset: 0; background: var(--bg);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 24px; z-index: 500;
+  }
+  .login-logo { font-size: 64px; margin-bottom: 16px; }
+  .login-title { font-size: 22px; font-weight: 700; margin-bottom: 4px; text-align: center; }
+  .login-sub { font-size: 13px; color: var(--text2); margin-bottom: 32px; text-align: center; }
+  .login-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 24px; width: 100%; max-width: 340px; }
+  .login-label { font-size: 12px; color: var(--text2); margin-bottom: 8px; font-weight: 600; display: block; }
+  .login-input { width: 100%; background: var(--surface2); border: 2px solid var(--border); border-radius: 12px; color: var(--text); font-family: 'IBM Plex Sans Arabic', sans-serif; font-size: 22px; font-weight: 700; padding: 14px 16px; outline: none; text-align: center; letter-spacing: 4px; margin-bottom: 8px; direction: ltr; }
+  .login-input:focus { border-color: var(--accent); }
+  .login-error { color: var(--red); font-size: 12px; margin-bottom: 12px; display: none; text-align: center; }
+  .login-btn { width: 100%; padding: 16px; background: var(--accent); color: white; border: none; border-radius: 12px; font-family: 'IBM Plex Sans Arabic', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; }
+  .login-hint { font-size: 11px; color: var(--text2); text-align: center; margin-top: 16px; }
+  /* ===== USER BADGE IN HEADER ===== */
+  .user-info { display: flex; flex-direction: column; align-items: flex-end; }
+  .user-name { font-size: 12px; font-weight: 600; color: var(--text); }
+  .user-role { font-size: 10px; color: var(--accent); }
+  .logout-btn { background: none; border: 1px solid var(--border); border-radius: 8px; color: var(--text2); font-size: 11px; padding: 4px 8px; cursor: pointer; margin-top: 2px; font-family: inherit; }
+
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<!-- ===== LOGIN SCREEN ===== -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-logo">🏥</div>
+  <div class="login-title">نظام تموين شرق جدة</div>
+  <div class="login-sub">قطاع شرق جدة — ٥ مراكز</div>
+  <div class="login-card">
+    <label class="login-label">أدخل كودك الوظيفي</label>
+    <input class="login-input" id="loginCode" type="number" placeholder="• • • • •" 
+      onkeydown="if(event.key==='Enter') tryLogin()">
+    <div class="login-error" id="loginError"></div>
+    <button class="login-btn" onclick="tryLogin()">دخول</button>
+    <div class="login-hint">🔒 البيانات محمية ولا يمكن الوصول إليها بدون كود</div>
+  </div>
+</div>
+
+<!-- ===== APP WRAPPER ===== -->
+<div id="appWrapper" style="display:none">
+<div class="header">
+  <div class="header-title">
+    <div class="header-icon">🏥</div>
+    <div>
+      <h1>تموين شرق جدة</h1>
+      <p>إدارة مخزون المراكز</p>
+    </div>
+  </div>
+  <div class="user-info">
+    <div class="user-name" id="userNameBadge">—</div>
+    <div class="user-role" id="userRoleBadge">—</div>
+    <button class="logout-btn" onclick="logout()">تسجيل خروج</button>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab active" onclick="showTab('movement')">
+    <span class="tab-icon">📦</span>حركة
+  </div>
+  <div class="tab" id="tabDashboard" onclick="showTab('dashboard')">
+    <span class="tab-icon">📊</span>لوحة
+  </div>
+  <div class="tab" id="tabHistory" onclick="showTab('history')">
+    <span class="tab-icon">📋</span>سجل
+  </div>
+  <div class="tab" id="tabAnalytics" onclick="showTab('analytics')">
+    <span class="tab-icon">🔒</span>تحليل
+  </div>
+</div>
+
+<!-- ============ MOVEMENT SCREEN ============ -->
+<div id="screen-movement" class="screen active">
+
+  <div class="success-card" id="successCard">
+    <div class="success-icon">✅</div>
+    <h3>تم التسجيل بنجاح</h3>
+    <p id="successMsg"></p>
+    <button class="btn-new" onclick="resetForm()">تسجيل حركة جديدة</button>
+  </div>
+
+  <div id="formSection">
+    <div class="form-card">
+      <h2>📦 تسجيل حركة مخزون</h2>
+
+      <div class="step-indicator">
+        <div class="step active" id="step1"></div>
+        <div class="step" id="step2"></div>
+        <div class="step" id="step3"></div>
+        <div class="step" id="step4"></div>
+      </div>
+
+      <!-- STEP 1: CENTER -->
+      <div id="stepBlock1">
+        <label>١. اختر المركز</label>
+        <select id="selCenter" onchange="onCenterChange()">
+          <option value="">— اختر المركز —</option>
+          <option>مركز قويزه 18</option>
+          <option>مركز كيلو 7</option>
+          <option>مركز الرحيلي 8</option>
+          <option>مركز النسيم 6</option>
+          <option>مركز الحرزات 12</option>
+        </select>
+      </div>
+
+      <!-- STEP 2: MOVEMENT TYPE -->
+      <div id="stepBlock2" style="display:none">
+        <label>٢. نوع الحركة</label>
+        <div class="movement-btns">
+          <button class="mov-btn" id="btnAdd" onclick="selectMovement('إضافة')">
+            <span class="mov-icon">⬆️</span>إضافة للمستودع
+          </button>
+          <button class="mov-btn" id="btnSub" onclick="selectMovement('سحب')">
+            <span class="mov-icon">⬇️</span>سحب من المستودع
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP 3: ITEM -->
+      <div id="stepBlock3" style="display:none">
+        <label>٣. اختر الصنف</label>
+
+        <!-- CAMERA SCAN BUTTON -->
+        <button class="scan-btn" onclick="openCamera()">
+          <span style="font-size:22px">📷</span>
+          صوّر الصنف وسأتعرف عليه تلقائياً
+        </button>
+
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+          <div style="flex:1;height:1px;background:var(--border)"></div>
+          <span style="font-size:11px;color:var(--text2)">أو اختر يدوياً</span>
+          <div style="flex:1;height:1px;background:var(--border)"></div>
+        </div>
+
+        <select id="selCategory" onchange="onCategoryChange()">
+          <option value="">— اختر الفئة —</option>
+          <option>AIRWAY</option>
+          <option>BREATHING</option>
+          <option>CIRCULATION</option>
+          <option>CARDIAC</option>
+          <option>TRAUMA</option>
+          <option>OB</option>
+          <option>MEDICAL CONSUMABLES</option>
+          <option>INFECTION CONTROL</option>
+          <option>MEDICATION</option>
+        </select>
+        <select id="selItem" style="display:none" onchange="onItemChange()">
+          <option value="">— اختر الصنف —</option>
+        </select>
+      </div>
+
+      <!-- STEP 4: QUANTITY -->
+      <div id="stepBlock4" style="display:none">
+        <label>٤. الكمية</label>
+        <input type="number" id="inputQty" min="1" placeholder="أدخل العدد" oninput="onQtyChange()">
+        <label style="margin-top:-8px">الكود الوظيفي</label>
+        <input type="number" id="inputEmpId" placeholder="الكود الوظيفي (اختياري)" style="margin-bottom:6px">
+        <label>اسم الموظف</label>
+        <input type="number" id="inputEmpName" placeholder="اسم الموظف (اختياري)" style="font-family: inherit; padding:12px 14px; width:100%; background: var(--surface2); border:1px solid var(--border); border-radius:10px; color:var(--text); margin-bottom:14px; outline:none; direction:rtl" onInput="this.style.fontFamily='IBM Plex Sans Arabic, sans-serif'">
+      </div>
+
+      <button class="btn-submit" id="btnSubmit" disabled onclick="submitMovement()">
+        تأكيد وإرسال
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ DASHBOARD SCREEN ============ -->
+<div id="screen-dashboard" class="screen">
+  <div id="dashContent">
+    <div class="loading"><div class="spinner"></div>جاري تحميل البيانات...</div>
+  </div>
+</div>
+
+<!-- ============ HISTORY SCREEN ============ -->
+<div id="screen-history" class="screen">
+  <div id="historyContent">
+    <div class="loading"><div class="spinner"></div>جاري تحميل السجل...</div>
+  </div>
+</div>
+
+<!-- ============ ANALYTICS SCREEN ============ -->
+<div id="screen-analytics" class="screen">
+  <div class="analytics-lock" id="lockScreen">
+    <div class="lock-icon">🔐</div>
+    <h3>صفحة التحليل السرية</h3>
+    <p>أدخل رمز الدخول للوصول إلى التقارير والرسوم البيانية</p>
+    <div class="pin-input">
+      <input class="pin-digit" id="p1" maxlength="1" type="password" oninput="pinNext(this,'p2')">
+      <input class="pin-digit" id="p2" maxlength="1" type="password" oninput="pinNext(this,'p3')">
+      <input class="pin-digit" id="p3" maxlength="1" type="password" oninput="pinNext(this,'p4')">
+      <input class="pin-digit" id="p4" maxlength="1" type="password" oninput="pinNext(this,null)">
+    </div>
+    <div class="pin-error" id="pinError">❌ رمز خاطئ، حاول مجدداً</div>
+    <button class="btn-unlock" onclick="checkPin()">دخول</button>
+  </div>
+
+  <div class="analytics-content" id="analyticsContent">
+    <div id="analyticsData">
+      <div class="loading"><div class="spinner"></div>جاري تحميل التحليل...</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ CENTER DETAIL VIEW ============ -->
+<div class="detail-view" id="detailView">
+  <div class="detail-header">
+    <button class="back-btn" onclick="closeDetail()">←</button>
+    <div>
+      <div style="font-size:15px;font-weight:600" id="detailTitle">المركز</div>
+      <div style="font-size:11px;color:var(--text2)" id="detailSub"></div>
+    </div>
+  </div>
+  <div class="detail-content" id="detailContent">
+    <div class="loading"><div class="spinner"></div>جاري التحميل...</div>
+  </div>
+</div>
+
+<!-- ============ CAMERA SCAN OVERLAY ============ -->
+<div class="scan-overlay" id="scanOverlay">
+  <div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:8px">
+    <span>📷</span> تعرّف على الصنف بالذكاء الاصطناعي
+  </div>
+
+  <div class="scan-preview" id="scanPreview">
+    <video id="cameraFeed" autoplay playsinline muted></video>
+    <img id="capturedImg" alt="الصورة الملتقطة">
+    <div class="scan-corner tl"></div>
+    <div class="scan-corner tr"></div>
+    <div class="scan-corner bl"></div>
+    <div class="scan-corner br"></div>
+  </div>
+
+  <div class="scan-actions">
+    <button class="btn-capture" id="btnCapture" onclick="capturePhoto()">📸 التقط صورة</button>
+    <button class="btn-retake" id="btnRetake" onclick="retakePhoto()">🔄 إعادة</button>
+    <button class="btn-analyze" id="btnAnalyze" onclick="analyzePhoto()">🤖 تحليل</button>
+    <button class="btn-cancel-scan" onclick="closeCamera()">إلغاء</button>
+  </div>
+
+  <label style="width:100%;max-width:360px;margin-top:8px;display:block">
+    <input type="file" accept="image/*" id="galleryInput" style="display:none" onchange="handleGalleryUpload(event)">
+    <div class="upload-btn" onclick="document.getElementById('galleryInput').click()" style="text-align:center;cursor:pointer;padding:12px;border:1px solid var(--border);border-radius:10px;color:var(--text2);font-size:13px">
+      🖼️ اختر من معرض الصور
+    </div>
+  </label>
+
+  <div class="ai-thinking" id="aiThinking">
+    <div class="spinner" style="width:18px;height:18px;border-width:2px"></div>
+    الذكاء الاصطناعي يحلل الصورة...
+  </div>
+
+  <div class="scan-status" id="scanStatus">وجّه الكاميرا نحو الصنف أو ملصقه</div>
+
+  <div class="scan-result-card" id="scanResultCard">
+    <div style="font-size:11px;color:var(--text2);margin-bottom:6px">✅ تم التعرف على الصنف</div>
+    <div class="scan-result-item" id="resultItemName"></div>
+    <div class="scan-result-cat" id="resultItemCat"></div>
+    <button class="btn-use-result" onclick="useScannedItem()">استخدم هذا الصنف ✓</button>
+  </div>
+</div>
+
+<canvas id="captureCanvas" style="display:none"></canvas>
+
+<script>
+// ======== CONFIG ========
+const SHEET_ID = '1M09LZe5AigIgR7SFThowX8UQSOA05py3zDE_3bZV7w4';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwqh0JgjUJLu_mj23Ble7WeWijQn1PN9ZdAeK6e1OHUH73HmJwESg-KdYqAU0xEalUc/exec';
+const PIN = '1234'; // ← غيّر هذا الرمز
+
+// ======== EMPLOYEES DATABASE ========
+const EMPLOYEES = {
+  // ===== أنت - كل الصلاحيات =====
+  '61602': { name: 'ريان خلف محمد الحربي', role: 'admin' },
+
+  // ===== القياديون =====
+  '10760': { name: 'عبدالرحمن عابد قاسي العيلي', role: 'leader' },
+  '2727':  { name: 'احمد حسين محمد نافع', role: 'leader' },
+  '10406': { name: 'رامي عايض طلق الصادري السلمي', role: 'leader' },
+  '2268':  { name: 'سعود قاسم عايض القرني', role: 'leader' },
+  '9714':  { name: 'بندر جباره جابر العروي', role: 'leader' },
+  '6031':  { name: 'مشاري احمد السهيمي', role: 'leader' },
+
+  // ===== المسعفون =====
+  '10988': { name: 'اسماعيل سعيد محمد شبيلي', role: 'paramedic' },
+  '61592': { name: 'عبدالله عبده محمد فقيهي', role: 'paramedic' },
+  '10562': { name: 'ابراهيم راشد علي زهراء الخميسي', role: 'paramedic' },
+  '11089': { name: 'ابراهيم شيهان مرزن العتيبي', role: 'paramedic' },
+  '5956':  { name: 'حسام محمد حنيف الدغيلبي العتيبي', role: 'paramedic' },
+  '9682':  { name: 'ياسر سعيد سعد الجحدلي', role: 'paramedic' },
+  '7604':  { name: 'صابر عبيد صابر العتيبي', role: 'paramedic' },
+  '9769':  { name: 'حسن موسى حسن ال جمعه الاسمري', role: 'paramedic' },
+  '61488': { name: 'أحمد إسماعيل بديوي الرويلي', role: 'paramedic' },
+  '8595':  { name: 'عماد علي سيف السلمي', role: 'paramedic' },
+  '9776':  { name: 'خالد احمد علي الغبيشي الزهراني', role: 'paramedic' },
+  '11345': { name: 'عبدالرحمن صالح عبده الحربي', role: 'paramedic' },
+  '3945':  { name: 'زاهر احمد مسفر الغامدي', role: 'paramedic' },
+  '61191': { name: 'ابراهيم حمد علي ال دويس', role: 'paramedic' },
+  '10156': { name: 'ضاحي ثابت عبدالمحسن السليمي الحربي', role: 'paramedic' },
+  '11390': { name: 'عبدالله حسن محمد المالكي', role: 'paramedic' },
+  '61485': { name: 'حاتم صالح عايض المالكي', role: 'paramedic' },
+  '61598': { name: 'عبدالعزيز عبدالله خلوفه مدخلي', role: 'paramedic' },
+  '9691':  { name: 'حامد حمزه حامد الحربي', role: 'paramedic' },
+  '9708':  { name: 'يحي بدر احمد العبيدي', role: 'paramedic' },
+  '7747':  { name: 'ابراهيم محمد طارق محمد الهوساوي', role: 'paramedic' },
+  '9778':  { name: 'حسين علي احمد السبعي', role: 'paramedic' },
+  '61162': { name: 'عبدالله سعد علي القرني', role: 'paramedic' },
+  '61648': { name: 'عمر مناجي علي نافع', role: 'paramedic' },
+  '6363':  { name: 'مصلح فارع سبهان البلادي', role: 'paramedic' },
+  '61483': { name: 'هاجر محمد إبراهيم الحبودل', role: 'paramedic' },
+  '5210':  { name: 'عبدالعزيز عبدالله حامد ابوفيه الغامدي', role: 'paramedic' },
+  '11384': { name: 'عبدالله عبدالمغني عبدالغني الشيخ', role: 'paramedic' },
+  '10314': { name: 'حسام مصطفى احمد مساوى', role: 'paramedic' },
+  '10912': { name: 'عطية يحي عطية الزهراني', role: 'paramedic' },
+  '61475': { name: 'مشاري حسن خميس الزهراني', role: 'paramedic' },
+  '61616': { name: 'باسل عابد عبيد الزهراني', role: 'paramedic' },
+  '10928': { name: 'احمد ابراهيم مفتاح عقيلي', role: 'paramedic' },
+  '11374': { name: 'عبدالرحمن خالد سليمان العنتر', role: 'paramedic' },
+  '4504':  { name: 'متعب مرزوق نافع البلادي الحربي', role: 'paramedic' },
+  '8202':  { name: 'محمد علي عبداله ال هدبان المنتشري', role: 'paramedic' },
+  '61478': { name: 'راغب عبد رب الرسول أمان القبعه', role: 'paramedic' },
+  '61619': { name: 'مازن فهد عبدالرحمن المطيري', role: 'paramedic' },
+  '9711':  { name: 'سعيد عبداله سعيد المضحوي الزهراني', role: 'paramedic' },
+  '10071': { name: 'محمد عابد عبيدان الحساني', role: 'paramedic' },
+  '11382': { name: 'هادي عباس أحمد زامكه', role: 'paramedic' },
+  '8938':  { name: 'منصور عبد الغني عبداله الزهراني', role: 'paramedic' },
+  '61590': { name: 'عدي خالد جميل بوقري', role: 'admin' },
+  '10595': { name: 'مؤيد ابراهيم عمر الاهدل', role: 'paramedic' },
+  '61389': { name: 'خالد فؤاد خالد قدس', role: 'paramedic' },
+  '736':   { name: 'سعيد بن علي بن حامد آل مسمار الكثيري', role: 'paramedic' },
+  '4254':  { name: 'سعيد محمد احمد الغامدي', role: 'paramedic' },
+  '61607': { name: 'عبداله محمد أحمد العمودي', role: 'paramedic' },
+  '10621': { name: 'ريان احمد حسن ال ثواب القرني', role: 'paramedic' },
+  '4115':  { name: 'نايف علي بشامة السلمي', role: 'paramedic' },
+  '6659':  { name: 'بندر عبداله سعيد الزهراني', role: 'paramedic' },
+  '9864':  { name: 'حسن محمد علي عسيري', role: 'paramedic' },
+  '11385': { name: 'علي محمد علي الشهري', role: 'paramedic' },
+  '61464': { name: 'سميه سعيد موسى الزهراني', role: 'paramedic' },
+  '9775':  { name: 'جبريل زين جبريل الزبيدي', role: 'paramedic' },
+  '9824':  { name: 'علي احمد سعيد الفهمي الزهراني', role: 'paramedic' },
+  '11375': { name: 'فارس فوزي أحمد شحات', role: 'paramedic' },
+  '9644':  { name: 'عماد عبداله مستور اللحياني', role: 'paramedic' },
+  '9681':  { name: 'فؤاد حمدان حمدي الفارسي', role: 'paramedic' },
+  '61582': { name: 'سليمان عبداله سعدي عبداله', role: 'paramedic' },
+  '61600': { name: 'محمد أحمد محمد المحيميد', role: 'paramedic' },
+  '723':   { name: 'مساعد احمد يحيى الشمراني', role: 'paramedic' },
+  '6360':  { name: 'سعد احمد سعد الغامدي', role: 'paramedic' },
+  '7488':  { name: 'سعيد عبدالخالق سعيد الغامدي', role: 'paramedic' },
+  '61312': { name: 'فهد حسن محمد باعبدالله', role: 'paramedic' },
+  '1087':  { name: 'عبدالرحمن جميل جميل الفزي الجهني', role: 'paramedic' },
+  '9773':  { name: 'عدنان عبداله سمار البلادي', role: 'paramedic' },
+  '4117':  { name: 'فهد علي راشد الغامدي', role: 'paramedic' },
+  '9774':  { name: 'عبداله منتهى حسن المعشي', role: 'paramedic' },
+  '8929':  { name: 'عبدالأله محمد حسن الجراري', role: 'paramedic' },
+  '61618': { name: 'أحمد عبدالعزيز محمد الخريمي', role: 'paramedic' },
+  '61641': { name: 'رضا عبدالهادي عبدالواحد الحيدر', role: 'paramedic' },
+  '61643': { name: 'حسن فايز حسن آل عوجان', role: 'paramedic' },
+  '6033':  { name: 'عبدالحي مشرف طامي المعلوي', role: 'paramedic' },
+  '102588':{ name: 'محمد احمد عميش', role: 'paramedic' },
+  '5213':  { name: 'ياسر طلال رجاء السهلي الحربي', role: 'paramedic' },
+  '101194':{ name: 'عمر سمران محمد المرامحي', role: 'paramedic' },
+  '102640':{ name: 'ممدوح محمد ناجي علي', role: 'paramedic' },
+  '102775':{ name: 'عبداله نائف غزاي المقاطي', role: 'paramedic' },
+  '6608':  { name: 'عبدالعزيز احمد محمد الغامدي', role: 'paramedic' },
+  '102079':{ name: 'بدر بن سعيد بن مبارك الزهراني', role: 'paramedic' },
+};
+
+// ======== ITEMS BY CATEGORY ========
+const ITEMS = {
+  'AIRWAY': ['Bougie','ETT Secure Device','NPA Size 8','NPA Size 7.5','NPA Size 6','NPA Size 3.5','ETT 8.0','ETT 7.0','ETT 4.5','ETT 4.0','ETT 3.0','ETT 8.5','ETT 6.0','ETT 6.5','ETT 5.5','ETT 5.0','ETCO2 Colormetric','LMA Size 5','LMA Size 3','OPA Size 4','OPA Size 2','OPA 50mm','OPA 90mm','OPA 40mm','OPA 000','Laryngoscope Handle','Mac Blade Size 00','Lubricant Gel'],
+  'BREATHING': ['Infant BVM (ambu bag)','Pediatric BVM (ambu bag)','Adult BVM (ambu bag)','Pediatric nebulizer oxygen mask','Pediatric simple oxygen mask','Pediatric Non-rebreather (NR) oxygen mask','Adult simple oxygen mask','Adult nebulizer oxygen mask','Adult Non-rebreather (NR) oxygen mask','Flowmeter','Oxygen Humidifier','Main Oxygen Tank (Full)','Main Oxygen Tank (Empty)','Oxygen D Tank (Full)','Oxygen D Tank (Empty)','Soft Catheter','Suction Bag','Yankauer Suction Set'],
+  'CIRCULATION': ['IV Cannula 14G','IV Cannula 16G','IV Cannula 18G','IV Cannula 20G','IV Cannula 22G','IV Cannula 24G','Lancets','IO Needle','IV Set','1ml Syringe','5ml Syringe','20ml Syringe','10ml Syringe','Three Way Stopcock'],
+  'CARDIAC': ['AED Pads Adult','AED Pads Pediatric','ECG Electrodes Pack'],
+  'TRAUMA': ['Foldable Stretcher','Adult Long Backboard','Pediatric Backboard','Scoop Stretcher','Spare Ambulance Stretcher','Sam Splint','Traction Splint','Femur Fixation Splint','Stair Chair','Elastic Tubular Bandage','Pediatric C-Collar','Adhesive Tape','Disposable Tourniquet','Thermal Blanket','Plaster Bandage','Spider Straps','Elastic Bandage','Multi Trauma Dressing','4x4 Gauze','2x2 Gauze','Burn Pad','Adult C-collar'],
+  'OB': ['OB Kit'],
+  'MEDICAL CONSUMABLES': ['Vomiting Bags','Tongue Depressor','Triage Tags','Ice Pack','Bed Sheet Roll'],
+  'INFECTION CONTROL': ['Disinfectant Spray','Disposable Yellow Gown','White Gown','Disposable Face Mask','Head Cover','Face Shield','Hand Sanitizer Gel','Gloves'],
+  'MEDICATION': ['Epinephrine 1/1000','Epinephrine 1/10000','adenosine','amiodarone','atropine','asprin','calcium chloride','calcium gluconate','dopamine','magnesium sulfate','nitroglycerin','sodium bicarbonate','ondasterone','metoclopramide','naloxon','albuterol','atrsol-polmcort','hedrocortisone','diclofinac','paracetamol','D10%','glucagon','normal saline','oral glocuse','diphenhydramine','lasix','haldol','lidocaine','TXA','ketamine','rocuronium','etomidate','succinylcholine']
+};
+
+// ======== STATE ========
+let selectedCenter = '';
+let selectedMovement = '';
+let selectedCategory = '';
+let selectedItem = '';
+let currentDetailCenter = '';
+let cameraStream = null;
+let capturedImageData = null;
+let scannedResult = null;
+let currentUser = null;
+
+// ======== LOGIN ========
+function tryLogin() {
+  const code = document.getElementById('loginCode').value.trim();
+  const emp = EMPLOYEES[code];
+  const errEl = document.getElementById('loginError');
+  if (!emp) {
+    errEl.style.display = 'block';
+    errEl.textContent = '❌ الكود غير صحيح، تحقق وأعد المحاولة';
+    document.getElementById('loginCode').value = '';
+    return;
+  }
+  currentUser = { code, ...emp };
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('appWrapper').style.display = 'block';
+  applyRoleUI();
+}
+
+function applyRoleUI() {
+  const role = currentUser.role;
+  document.getElementById('userNameBadge').textContent = currentUser.name.split(' ').slice(0,2).join(' ');
+  document.getElementById('userRoleBadge').textContent =
+    role === 'admin' ? '⭐ مدير النظام' :
+    role === 'leader' ? '🎖️ قيادي مناوب' : '🚑 مسعف';
+  const tabDash = document.getElementById('tabDashboard');
+  const tabHistory = document.getElementById('tabHistory');
+  const tabAnalytics = document.getElementById('tabAnalytics');
+  if (role === 'paramedic') {
+    tabDash.style.display = 'none';
+    tabHistory.style.display = 'none';
+    tabAnalytics.style.display = 'none';
+  } else if (role === 'leader') {
+    tabDash.style.display = 'flex';
+    tabHistory.style.display = 'flex';
+    tabAnalytics.style.display = 'none';
+  } else {
+    tabDash.style.display = 'flex';
+    tabHistory.style.display = 'flex';
+    tabAnalytics.style.display = 'flex';
+  }
+  document.getElementById('inputEmpId').value = currentUser.code;
+  document.getElementById('inputEmpName').value = currentUser.name;
+}
+
+function logout() {
+  currentUser = null;
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('appWrapper').style.display = 'none';
+  document.getElementById('loginCode').value = '';
+  document.getElementById('loginError').style.display = 'none';
+  resetForm();
+}
+
+// ======== CAMERA ========
+async function openCamera() {
+  document.getElementById('scanOverlay').classList.add('show');
+  document.getElementById('scanResultCard').classList.remove('show');
+  document.getElementById('aiThinking').classList.remove('show');
+  document.getElementById('scanStatus').textContent = 'وجّه الكاميرا نحو الصنف أو ملصقه';
+  document.getElementById('capturedImg').style.display = 'none';
+  document.getElementById('cameraFeed').style.display = 'block';
+  document.getElementById('btnCapture').style.display = 'block';
+  document.getElementById('btnRetake').style.display = 'none';
+  document.getElementById('btnAnalyze').style.display = 'none';
+
+  try {
+    cameraStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+    });
+    document.getElementById('cameraFeed').srcObject = cameraStream;
+  } catch(e) {
+    document.getElementById('scanStatus').textContent = '⚠️ لا يمكن الوصول للكاميرا، استخدم خيار المعرض أدناه';
+    document.getElementById('btnCapture').style.display = 'none';
+  }
+}
+
+function closeCamera() {
+  if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
+  document.getElementById('scanOverlay').classList.remove('show');
+  capturedImageData = null;
+}
+
+function capturePhoto() {
+  const video = document.getElementById('cameraFeed');
+  const canvas = document.getElementById('captureCanvas');
+  canvas.width = video.videoWidth || 640;
+  canvas.height = video.videoHeight || 480;
+  canvas.getContext('2d').drawImage(video, 0, 0);
+  capturedImageData = canvas.toDataURL('image/jpeg', 0.85).split(',')[1];
+
+  const img = document.getElementById('capturedImg');
+  img.src = 'data:image/jpeg;base64,' + capturedImageData;
+  img.style.display = 'block';
+  video.style.display = 'none';
+
+  if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
+
+  document.getElementById('btnCapture').style.display = 'none';
+  document.getElementById('btnRetake').style.display = 'block';
+  document.getElementById('btnAnalyze').style.display = 'block';
+  document.getElementById('scanStatus').textContent = 'تم التقاط الصورة — اضغط تحليل';
+  document.getElementById('scanResultCard').classList.remove('show');
+}
+
+function retakePhoto() {
+  capturedImageData = null;
+  document.getElementById('capturedImg').style.display = 'none';
+  document.getElementById('cameraFeed').style.display = 'block';
+  document.getElementById('btnCapture').style.display = 'block';
+  document.getElementById('btnRetake').style.display = 'none';
+  document.getElementById('btnAnalyze').style.display = 'none';
+  document.getElementById('scanResultCard').classList.remove('show');
+  document.getElementById('scanStatus').textContent = 'وجّه الكاميرا نحو الصنف أو ملصقه';
+  openCamera();
+}
+
+function handleGalleryUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const base64 = e.target.result.split(',')[1];
+    capturedImageData = base64;
+    const img = document.getElementById('capturedImg');
+    img.src = e.target.result;
+    img.style.display = 'block';
+    document.getElementById('cameraFeed').style.display = 'none';
+    document.getElementById('btnCapture').style.display = 'none';
+    document.getElementById('btnRetake').style.display = 'block';
+    document.getElementById('btnAnalyze').style.display = 'block';
+    document.getElementById('scanStatus').textContent = 'تم تحميل الصورة — اضغط تحليل';
+    document.getElementById('scanResultCard').classList.remove('show');
+  };
+  reader.readAsDataURL(file);
+}
+
+async function analyzePhoto() {
+  if (!capturedImageData) return;
+
+  document.getElementById('aiThinking').classList.add('show');
+  document.getElementById('scanStatus').textContent = '';
+  document.getElementById('scanResultCard').classList.remove('show');
+  document.getElementById('btnAnalyze').disabled = true;
+
+  const allItems = [];
+  Object.entries(ITEMS).forEach(([cat, items]) => {
+    items.forEach(item => allItems.push({ item, cat }));
+  });
+
+  const prompt = `You are an EMS medical supply recognition system.
+Look at this image and identify the medical supply item shown.
+Match it EXACTLY to one item from this list:
+${allItems.map(x => x.item).join(', ')}
+
+Rules:
+- Read any text/label visible in the image
+- Match to the closest item in the list above
+- Respond ONLY with valid JSON, no extra text:
+{"item": "exact item name from list", "category": "category name", "confidence": "high/medium/low", "reasoning": "brief reason in Arabic"}
+
+Category options: AIRWAY, BREATHING, CIRCULATION, CARDIAC, TRAUMA, OB, MEDICAL CONSUMABLES, INFECTION CONTROL, MEDICATION`;
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 300,
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: capturedImageData } },
+            { type: 'text', text: prompt }
+          ]
+        }]
+      })
+    });
+
+    const data = await response.json();
+    const text = data.content?.[0]?.text || '';
+    const clean = text.replace(/```json|```/g, '').trim();
+    const result = JSON.parse(clean);
+
+    // Validate item exists in our list
+    const found = allItems.find(x => x.item.toLowerCase() === result.item.toLowerCase());
+    if (found) {
+      scannedResult = { item: found.item, cat: found.cat };
+      document.getElementById('resultItemName').textContent = found.item;
+      document.getElementById('resultItemCat').textContent = `📂 ${found.cat} · ${result.reasoning || ''}`;
+      document.getElementById('scanResultCard').classList.add('show');
+      document.getElementById('scanStatus').textContent = result.confidence === 'high' ? '✅ تأكد عالي' : '⚠️ تأكد متوسط — راجع النتيجة';
+    } else {
+      document.getElementById('scanStatus').textContent = '❌ لم يتعرف على الصنف، جرب صورة أوضح أو اختر يدوياً';
+    }
+
+  } catch(e) {
+    document.getElementById('scanStatus').textContent = '❌ حدث خطأ في التحليل، اختر الصنف يدوياً';
+  }
+
+  document.getElementById('aiThinking').classList.remove('show');
+  document.getElementById('btnAnalyze').disabled = false;
+}
+
+function useScannedItem() {
+  if (!scannedResult) return;
+  closeCamera();
+
+  // Set category
+  document.getElementById('selCategory').value = scannedResult.cat;
+  selectedCategory = scannedResult.cat;
+
+  // Populate items dropdown
+  const sel = document.getElementById('selItem');
+  sel.innerHTML = '<option value="">— اختر الصنف —</option>';
+  ITEMS[scannedResult.cat].forEach(item => {
+    sel.innerHTML += `<option${item === scannedResult.item ? ' selected' : ''}>${item}</option>`;
+  });
+  sel.style.display = 'block';
+
+  // Set selected item
+  selectedItem = scannedResult.item;
+  show('stepBlock4');
+  setStep(4);
+  updateSubmit();
+}
+
+// ======== TABS ========
+function showTab(tab) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('screen-' + tab).classList.add('active');
+  event.currentTarget.classList.add('active');
+  if (tab === 'dashboard') loadDashboard();
+  if (tab === 'history') loadHistory();
+}
+
+// ======== FORM STEPS ========
+function onCenterChange() {
+  selectedCenter = document.getElementById('selCenter').value;
+  selectedMovement = '';
+  selectedCategory = '';
+  selectedItem = '';
+  document.getElementById('btnAdd').className = 'mov-btn';
+  document.getElementById('btnSub').className = 'mov-btn';
+  document.getElementById('selCategory').value = '';
+  document.getElementById('selItem').style.display = 'none';
+  document.getElementById('inputQty').value = '';
+
+  if (selectedCenter) {
+    show('stepBlock2');
+    setStep(2);
+  }
+  updateSubmit();
+}
+
+function selectMovement(type) {
+  selectedMovement = type;
+  document.getElementById('btnAdd').className = 'mov-btn';
+  document.getElementById('btnSub').className = 'mov-btn';
+  if (type === 'إضافة') document.getElementById('btnAdd').className = 'mov-btn selected-add';
+  else document.getElementById('btnSub').className = 'mov-btn selected-sub';
+  show('stepBlock3');
+  setStep(3);
+  updateSubmit();
+}
+
+function onCategoryChange() {
+  selectedCategory = document.getElementById('selCategory').value;
+  selectedItem = '';
+  const sel = document.getElementById('selItem');
+  sel.innerHTML = '<option value="">— اختر الصنف —</option>';
+  if (selectedCategory && ITEMS[selectedCategory]) {
+    ITEMS[selectedCategory].forEach(item => {
+      sel.innerHTML += `<option>${item}</option>`;
+    });
+    sel.style.display = 'block';
+  }
+  updateSubmit();
+}
+
+function onItemChange() {
+  selectedItem = document.getElementById('selItem').value;
+  if (selectedItem) {
+    show('stepBlock4');
+    setStep(4);
+  }
+  updateSubmit();
+}
+
+function onQtyChange() { updateSubmit(); }
+
+function updateSubmit() {
+  const qty = parseInt(document.getElementById('inputQty').value);
+  const ok = selectedCenter && selectedMovement && selectedItem && qty > 0;
+  document.getElementById('btnSubmit').disabled = !ok;
+}
+
+function setStep(n) {
+  for (let i = 1; i <= 4; i++) {
+    const el = document.getElementById('step' + i);
+    if (i < n) el.className = 'step done';
+    else if (i === n) el.className = 'step active';
+    else el.className = 'step';
+  }
+}
+
+function show(id) { document.getElementById(id).style.display = 'block'; }
+
+// ======== SUBMIT ========
+async function submitMovement() {
+  const btn = document.getElementById('btnSubmit');
+  btn.disabled = true;
+  btn.textContent = 'جاري الإرسال...';
+
+  const qty = parseInt(document.getElementById('inputQty').value);
+  const empId = document.getElementById('inputEmpId').value || '';
+  const empName = document.getElementById('inputEmpName').value || '';
+  const now = new Date();
+  const timestamp = `${now.toLocaleDateString('ar-SA')} ${now.toLocaleTimeString('ar-SA')}`;
+
+  const row = [timestamp, selectedCenter, selectedMovement, selectedItem, selectedCategory, qty, empId, empName];
+
+  try {
+    if (SCRIPT_URL) {
+      await fetch(SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'addRow', row })
+      });
+    }
+
+    // Save to memory
+    memMovements.unshift({ timestamp, center: selectedCenter, type: selectedMovement, item: selectedItem, category: selectedCategory, qty, empId, empName });
+    if (memMovements.length > 200) memMovements = memMovements.slice(0, 200);
+    
+
+    // Update local stock
+    updateLocalStock(selectedCenter, selectedItem, selectedMovement, qty);
+
+    document.getElementById('successMsg').textContent =
+      `${selectedMovement === 'إضافة' ? '⬆️ أضفت' : '⬇️ سحبت'} ${qty} من ${selectedItem} في ${selectedCenter}`;
+    document.getElementById('formSection').style.display = 'none';
+    document.getElementById('successCard').classList.add('show');
+
+  } catch(e) {
+    btn.disabled = false;
+    btn.textContent = 'تأكيد وإرسال';
+    alert('حدث خطأ، حاول مجدداً');
+  }
+}
+
+// ======== IN-MEMORY STORAGE ========
+const memStock = {};
+let memMovements = [];
+
+function updateLocalStock(center, item, type, qty) {
+  const key = center + '||' + item;
+  if (memStock[key] === undefined) memStock[key] = 100;
+  if (type === 'إضافة') memStock[key] += qty;
+  else memStock[key] -= qty;
+  if (memStock[key] < 0) memStock[key] = 0;
+}
+
+function getLocalStock(center, item) {
+  const key = center + '||' + item;
+  return memStock[key] !== undefined ? memStock[key] : 100;
+}
+
+function getSafety(center, item) {
+  return 5; // حد الأمان الافتراضي - يمكن تعديله
+}
+
+function resetForm() {
+  selectedCenter = ''; selectedMovement = ''; selectedCategory = ''; selectedItem = '';
+  document.getElementById('selCenter').value = '';
+  document.getElementById('selCategory').value = '';
+  document.getElementById('selItem').style.display = 'none';
+  document.getElementById('inputQty').value = '';
+  document.getElementById('inputEmpId').value = '';
+  document.getElementById('inputEmpName').value = '';
+  document.getElementById('btnAdd').className = 'mov-btn';
+  document.getElementById('btnSub').className = 'mov-btn';
+  ['stepBlock2','stepBlock3','stepBlock4'].forEach(id => document.getElementById(id).style.display = 'none');
+  setStep(1);
+  document.getElementById('successCard').classList.remove('show');
+  document.getElementById('formSection').style.display = 'block';
+  document.getElementById('btnSubmit').disabled = true;
+  document.getElementById('btnSubmit').textContent = 'تأكيد وإرسال';
+}
+
+// ======== DASHBOARD ========
+const CENTERS = ['مركز قويزه 18','مركز كيلو 7','مركز الرحيلي 8','مركز النسيم 6','مركز الحرزات 12'];
+
+function loadDashboard() {
+  const el = document.getElementById('dashContent');
+
+  // Count alerts per center from local stock
+  const centerData = CENTERS.map(center => {
+    let total = 0, alerts = 0;
+    Object.entries(ITEMS).forEach(([cat, items]) => {
+      items.forEach(item => {
+        total++;
+        const stock = getLocalStock(center, item);
+        const safety = getSafety(center, item);
+        if (stock <= safety) alerts++;
+      });
+    });
+    return { center, total, alerts, pct: Math.round(((total - alerts) / total) * 100) };
+  });
+
+  const totalAlerts = centerData.reduce((s, c) => s + c.alerts, 0);
+  const totalOk = centerData.reduce((s, c) => s + (c.total - c.alerts), 0);
+  const movements = JSON.parse(JSON.stringify(memMovements));
+
+  el.innerHTML = `
+    <div class="dash-grid">
+      <div class="stat-card">
+        <div class="stat-num stat-blue">${CENTERS.length}</div>
+        <div class="stat-label">مراكز نشطة</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num stat-red">${totalAlerts}</div>
+        <div class="stat-label">يحتاج تموين</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num stat-green">${totalOk}</div>
+        <div class="stat-label">أصناف كاملة</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num stat-yellow">${movements.length}</div>
+        <div class="stat-label">حركات مسجلة</div>
+      </div>
+    </div>
+
+    ${totalAlerts > 0 ? `
+    <div class="section-title">⚠️ تنبيهات التموين</div>
+    ${getAlertItems()}
+    ` : ''}
+
+    <div class="section-title" style="margin-top:16px">🏥 حالة المراكز</div>
+    ${centerData.map(c => `
+      <div class="center-card" onclick="openDetail('${c.center}')">
+        <div class="center-card-header">
+          <div class="center-name">${c.center}</div>
+          <div class="center-badge ${c.alerts > 0 ? 'badge-warn' : 'badge-ok'}">
+            ${c.alerts > 0 ? `⚠️ ${c.alerts} ناقص` : '✅ مكتمل'}
+          </div>
+        </div>
+        <div class="center-bar-bg">
+          <div class="center-bar-fill" style="width:${c.pct}%; background:${c.alerts > 0 ? 'var(--yellow)' : 'var(--green)'}"></div>
+        </div>
+        <div class="center-stats">
+          <span>${c.pct}% مكتمل</span>
+          <span>اضغط للتفاصيل ←</span>
+        </div>
+      </div>
+    `).join('')}
+  `;
+}
+
+function getAlertItems() {
+  let html = '';
+  CENTERS.forEach(center => {
+    Object.entries(ITEMS).forEach(([cat, items]) => {
+      items.forEach(item => {
+        const stock = getLocalStock(center, item);
+        const safety = getSafety(center, item);
+        if (stock <= safety) {
+          html += `
+            <div class="alert-item">
+              <div>
+                <div class="alert-item-name">${item}</div>
+                <div class="alert-item-sub">${center}</div>
+              </div>
+              <div class="alert-qty">${stock}</div>
+            </div>`;
+        }
+      });
+    });
+  });
+  return html || '';
+}
+
+// ======== CENTER DETAIL ========
+function openDetail(center) {
+  currentDetailCenter = center;
+  document.getElementById('detailTitle').textContent = center;
+  document.getElementById('detailSub').textContent = 'حالة المخزون التفصيلية';
+  document.getElementById('detailView').classList.add('show');
+  renderDetailContent(center);
+}
+
+function closeDetail() {
+  document.getElementById('detailView').classList.remove('show');
+}
+
+function renderDetailContent(center) {
+  let html = '';
+  Object.entries(ITEMS).forEach(([cat, items]) => {
+    html += `<div class="category-section">
+      <div class="category-title">${cat}</div>`;
+    items.forEach(item => {
+      const stock = getLocalStock(center, item);
+      const safety = getSafety(center, item);
+      const isWarn = stock <= safety;
+      html += `
+        <div class="item-row">
+          <div class="item-row-name">${item}</div>
+          <div class="item-row-right">
+            <div class="item-qty" style="color:${isWarn ? 'var(--red)' : 'var(--green)'}">${stock}</div>
+            <div class="item-status ${isWarn ? 'status-warn' : 'status-ok'}"></div>
+          </div>
+        </div>`;
+    });
+    html += `</div>`;
+  });
+  document.getElementById('detailContent').innerHTML = html;
+}
+
+// ======== HISTORY ========
+function loadHistory() {
+  const el = document.getElementById('historyContent');
+  const movements = JSON.parse(JSON.stringify(memMovements));
+
+  if (movements.length === 0) {
+    el.innerHTML = `<div class="loading" style="color:var(--text2)">📋 لا توجد حركات مسجلة بعد</div>`;
+    return;
+  }
+
+  el.innerHTML = `
+    <div class="section-title">📋 آخر الحركات (${movements.length})</div>
+    ${movements.slice(0, 50).map(m => `
+      <div class="history-item">
+        <div class="history-info">
+          <div class="history-name">${m.item}</div>
+          <div class="history-meta">${m.center} · ${m.timestamp}</div>
+          ${m.empName ? `<div class="history-meta">👤 ${m.empName}</div>` : ''}
+        </div>
+        <div class="history-qty ${m.type === 'إضافة' ? 'qty-add' : 'qty-sub'}">
+          ${m.type === 'إضافة' ? '+' : '-'}${m.qty}
+        </div>
+      </div>
+    `).join('')}
+  `;
+}
+
+// ======== ANALYTICS ========
+function pinNext(el, nextId) {
+  if (el.value.length >= 1 && nextId) {
+    document.getElementById(nextId).focus();
+  }
+}
+
+function checkPin() {
+  const pin = ['p1','p2','p3','p4'].map(id => document.getElementById(id).value).join('');
+  if (pin === PIN) {
+    document.getElementById('lockScreen').style.display = 'none';
+    document.getElementById('analyticsContent').classList.add('show');
+    loadAnalytics();
+  } else {
+    document.getElementById('pinError').style.display = 'block';
+    ['p1','p2','p3','p4'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('p1').focus();
+  }
+}
+
+function loadAnalytics() {
+  const movements = JSON.parse(JSON.stringify(memMovements));
+
+  // Count by center
+  const byCenter = {};
+  CENTERS.forEach(c => byCenter[c] = { add: 0, sub: 0 });
+  movements.forEach(m => {
+    if (!byCenter[m.center]) return;
+    if (m.type === 'إضافة') byCenter[m.center].add += m.qty;
+    else byCenter[m.center].sub += m.qty;
+  });
+
+  // Count by category
+  const byCat = {};
+  movements.forEach(m => {
+    if (!byCat[m.category]) byCat[m.category] = 0;
+    byCat[m.category] += m.qty;
+  });
+
+  const maxCenter = Math.max(...Object.values(byCenter).map(v => v.add + v.sub)) || 1;
+  const maxCat = Math.max(...Object.values(byCat)) || 1;
+
+  const el = document.getElementById('analyticsData');
+  el.innerHTML = `
+    <div class="analytics-card">
+      <h3>📊 إجمالي الحركات لكل مركز</h3>
+      ${CENTERS.map(c => {
+        const total = (byCenter[c]?.add || 0) + (byCenter[c]?.sub || 0);
+        const pct = Math.round((total / maxCenter) * 100);
+        return `<div class="chart-bar-row">
+          <div class="chart-bar-label">${c.replace('مركز ','')}</div>
+          <div class="chart-bar-bg">
+            <div class="chart-bar-fill" style="width:${pct}%; background: var(--accent)">${total > 0 ? total : ''}</div>
+          </div>
+          <div class="chart-bar-val">${total}</div>
+        </div>`;
+      }).join('')}
+    </div>
+
+    <div class="analytics-card">
+      <h3>🏷️ الأصناف الأكثر حركة (بالفئة)</h3>
+      ${Object.entries(byCat).sort((a,b) => b[1]-a[1]).map(([cat, qty]) => {
+        const pct = Math.round((qty / maxCat) * 100);
+        return `<div class="chart-bar-row">
+          <div class="chart-bar-label">${cat}</div>
+          <div class="chart-bar-bg">
+            <div class="chart-bar-fill" style="width:${pct}%; background: var(--green)">${qty > 0 ? qty : ''}</div>
+          </div>
+          <div class="chart-bar-val">${qty}</div>
+        </div>`;
+      }).join('')}
+    </div>
+
+    <div class="analytics-card">
+      <h3>📋 جدول كامل بكل الحركات</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>الوقت</th>
+              <th>المركز</th>
+              <th>الصنف</th>
+              <th>النوع</th>
+              <th>الكمية</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${movements.slice(0,100).map(m => `
+              <tr>
+                <td style="color:var(--text2);font-size:10px">${m.timestamp}</td>
+                <td>${m.center?.replace('مركز ','')}</td>
+                <td>${m.item}</td>
+                <td><span class="tag ${m.type==='إضافة'?'tag-add':'tag-sub'}">${m.type}</span></td>
+                <td style="font-weight:700;color:${m.type==='إضافة'?'var(--green)':'var(--red)'}">${m.qty}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="analytics-card" style="text-align:center; padding:20px">
+      <div style="font-size:32px;margin-bottom:8px">📤</div>
+      <div style="font-size:14px;font-weight:600;margin-bottom:4px">تصدير البيانات</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:16px">تصدير كامل السجل بصيغة CSV</div>
+      <button onclick="exportCSV()" style="background:var(--accent);color:white;border:none;border-radius:10px;padding:10px 24px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer">
+        تحميل CSV
+      </button>
+    </div>
+  `;
+}
+
+function exportCSV() {
+  const movements = JSON.parse(JSON.stringify(memMovements));
+  const rows = [['الوقت','المركز','نوع الحركة','الصنف','الفئة','الكمية','الكود','الموظف']];
+  movements.forEach(m => rows.push([m.timestamp, m.center, m.type, m.item, m.category, m.qty, m.empId, m.empName]));
+  const csv = rows.map(r => r.join(',')).join('\n');
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'تموين_شرق_جده.csv'; a.click();
+}
+</script>
+</div><!-- end appWrapper -->
+</body>
+</html>
