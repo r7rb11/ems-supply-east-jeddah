@@ -1581,6 +1581,36 @@ async function submitMovement() {
 const memStock = {};
 let memMovements = [];
 
+// ======== LOAD FROM GOOGLE SHEETS ========
+async function loadStockFromSheet(center) {
+  if (!SCRIPT_URL) return;
+  try {
+    const url = SCRIPT_URL + '?action=getStock&center=' + encodeURIComponent(center);
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data.success && data.stock) {
+      Object.entries(data.stock).forEach(([item, val]) => {
+        const key = center + '||' + item;
+        memStock[key] = val.qty;
+        // store safety too
+        window['safety_' + center + '||' + item] = val.safety;
+      });
+    }
+  } catch(e) { console.log('Stock load error:', e); }
+}
+
+async function loadMovementsFromSheet() {
+  if (!SCRIPT_URL) return;
+  try {
+    const url = SCRIPT_URL + '?action=getMovements';
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data.success && data.movements) {
+      memMovements = data.movements;
+    }
+  } catch(e) { console.log('Movements load error:', e); }
+}
+
 function updateLocalStock(center, item, type, qty) {
   const key = center + '||' + item;
   if (memStock[key] === undefined) memStock[key] = 100;
@@ -1595,7 +1625,8 @@ function getLocalStock(center, item) {
 }
 
 function getSafety(center, item) {
-  return 5; // حد الأمان الافتراضي - يمكن تعديله
+  const key = 'safety_' + center + '||' + item;
+  return window[key] !== undefined ? window[key] : 5;
 }
 
 function resetForm() {
@@ -1619,8 +1650,11 @@ function resetForm() {
 // ======== DASHBOARD ========
 const CENTERS = ['مركز قويزه 18','مركز كيلو 7','مركز الرحيلي 8','مركز النسيم 6','مركز الحرزات 12'];
 
-function loadDashboard() {
+async function loadDashboard() {
   const el = document.getElementById('dashContent');
+  el.innerHTML = '<div class="loading"><div class="spinner"></div>جاري تحميل البيانات من الشيت...</div>';
+  // Load stock for all centers
+  await Promise.all(CENTERS.map(c => loadStockFromSheet(c)));
 
   // Count alerts per center from local stock
   const centerData = CENTERS.map(center => {
@@ -1710,7 +1744,8 @@ function getAlertItems() {
 }
 
 // ======== CENTER DETAIL ========
-function openDetail(center) {
+async function openDetail(center) {
+  await loadStockFromSheet(center);
   currentDetailCenter = center;
   document.getElementById('detailTitle').textContent = center;
   document.getElementById('detailSub').textContent = 'حالة المخزون التفصيلية';
@@ -1746,8 +1781,10 @@ function renderDetailContent(center) {
 }
 
 // ======== HISTORY ========
-function loadHistory() {
+async function loadHistory() {
   const el = document.getElementById('historyContent');
+  el.innerHTML = '<div class="loading"><div class="spinner"></div>جاري تحميل السجل...</div>';
+  await loadMovementsFromSheet();
   const movements = JSON.parse(JSON.stringify(memMovements));
 
   if (movements.length === 0) {
@@ -1792,7 +1829,8 @@ function checkPin() {
   }
 }
 
-function loadAnalytics() {
+async function loadAnalytics() {
+  await loadMovementsFromSheet();
   const movements = JSON.parse(JSON.stringify(memMovements));
 
   // Count by center
