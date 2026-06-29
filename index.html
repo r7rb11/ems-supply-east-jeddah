@@ -988,10 +988,10 @@
       <div id="stepBlock4" style="display:none">
         <label>٤. الكمية</label>
         <input type="number" id="inputQty" min="1" placeholder="أدخل العدد" oninput="onQtyChange()">
-        <label style="margin-top:-8px">الكود الوظيفي</label>
-        <input type="number" id="inputEmpId" placeholder="الكود الوظيفي (اختياري)" style="margin-bottom:6px">
+        <label style="margin-top:-8px">الكود الوظيفي <span style="color:var(--red)">*</span></label>
+        <input type="number" id="inputEmpId" placeholder="أدخل كودك الوظيفي (إجباري)" style="margin-bottom:6px; border-color: var(--accent);" oninput="updateSubmit()">
         <label>اسم الموظف</label>
-        <input type="number" id="inputEmpName" placeholder="اسم الموظف (اختياري)" style="font-family: inherit; padding:12px 14px; width:100%; background: var(--surface2); border:1px solid var(--border); border-radius:10px; color:var(--text); margin-bottom:14px; outline:none; direction:rtl" onInput="this.style.fontFamily='IBM Plex Sans Arabic, sans-serif'">
+        <input type="text" id="inputEmpName" placeholder="اسم الموظف" style="font-family: inherit; padding:12px 14px; width:100%; background: var(--surface2); border:1px solid var(--border); border-radius:10px; color:var(--text); margin-bottom:14px; outline:none; direction:rtl">
       </div>
 
       <button class="btn-submit" id="btnSubmit" disabled onclick="submitMovement()">
@@ -1203,15 +1203,15 @@ const EMPLOYEES = {
 
 // ======== ITEMS BY CATEGORY ========
 const ITEMS = {
-  'AIRWAY': ['Bougie','ETT Secure Device','NPA Size 8','NPA Size 7.5','NPA Size 6','NPA Size 3.5','ETT 8.0','ETT 7.0','ETT 4.5','ETT 4.0','ETT 3.0','ETT 8.5','ETT 6.0','ETT 6.5','ETT 5.5','ETT 5.0','ETCO2 Colormetric','LMA Size 5','LMA Size 3','OPA Size 4','OPA Size 2','OPA 50mm','OPA 90mm','OPA 40mm','OPA 000','Laryngoscope Handle','Mac Blade Size 00','Lubricant Gel'],
-  'BREATHING': ['Infant BVM (ambu bag)','Pediatric BVM (ambu bag)','Adult BVM (ambu bag)','Pediatric nebulizer oxygen mask','Pediatric simple oxygen mask','Pediatric Non-rebreather (NR) oxygen mask','Adult simple oxygen mask','Adult nebulizer oxygen mask','Adult Non-rebreather (NR) oxygen mask','Flowmeter','Oxygen Humidifier','Main Oxygen Tank (Full)','Main Oxygen Tank (Empty)','Oxygen D Tank (Full)','Oxygen D Tank (Empty)','Soft Catheter','Suction Bag','Yankauer Suction Set'],
+  'AIRWAY': ['Bougie','ETT Secure Device','NPA Size 8','NPA Size 7.3','NPA Size 6','NPA Size 3.5','ETT 7.5','ETT 8.0','ETT 7.0','ETT 4.5','ETT 4.0','ETT 3.0','ETT 8.5','ETT 6.0','ETT 6.5','ETT 5.5','ETT 5.0','ETCO2 Colormetric','LMA Size 2','LMA Size 3','OPA Size 4','OPA Size 2','OPA 50mm','OPA 90mm','OPA 40mm','OPA 000','Laryngoscope Handle','Mac Blade Size 00','Lubricant Gel'],
+  'BREATHING': ['Infant BVM (ambu bag)','Pediatric BVM (ambu bag)','Adult BVM (ambu bag)','Pediatric nebulizer oxygen mask','Pediatric simple oxygen mask','Pediatric Non-rebreather (NRB) oxygen mask','Adult simple oxygen mask','Adult nebulizer oxygen mask','Adult Non-rebreather (NRB) oxygen mask','Adult Nasal cannula','Flowmeter','Oxygen Humidifier','Main Oxygen Tank (Full)','Main Oxygen Tank (Empty)','Oxygen D Tank (Full)','Oxygen D Tank (Empty)','Soft Suction Catheter','Soft Catheter','Suction Bag','Yankauer Suction Set'],
   'CIRCULATION': ['IV Cannula 14G','IV Cannula 16G','IV Cannula 18G','IV Cannula 20G','IV Cannula 22G','IV Cannula 24G','Lancets','IO Needle','IV Set','1ml Syringe','5ml Syringe','20ml Syringe','10ml Syringe','Three Way Stopcock'],
   'CARDIAC': ['AED Pads Adult','AED Pads Pediatric','ECG Electrodes Pack'],
-  'TRAUMA': ['Foldable Stretcher','Adult Long Backboard','Pediatric Backboard','Scoop Stretcher','Spare Ambulance Stretcher','Sam Splint','Traction Splint','Femur Fixation Splint','Stair Chair','Elastic Tubular Bandage','Pediatric C-Collar','Adhesive Tape','Disposable Tourniquet','Thermal Blanket','Plaster Bandage','Spider Straps','Elastic Bandage','Multi Trauma Dressing','4x4 Gauze','2x2 Gauze','Burn Pad','Adult C-collar'],
+  'TRAUMA': ['Foldable Stretcher','Adult Long Backboard','Pediatric Backboard','Scoop Stretcher','Spare Ambulance Stretcher','Sam Splint','KED','Traction Splint','Femur Fixation Splint','Stair Chair','Elastic Tubular Bandage','Pediatric C-Collar','Adhesive Tape','Disposable Tourniquet','Thermal Blanket','Plaster Bandage','Spider Straps','Elastic Bandage','Multi Trauma Dressing','4x4 Gauze','2x2 Gauze','Burn Pad','Adult C-collar'],
   'OB': ['OB Kit'],
   'MEDICAL CONSUMABLES': ['Vomiting Bags','Tongue Depressor','Triage Tags','Ice Pack','Bed Sheet Roll'],
   'INFECTION CONTROL': ['Disinfectant Spray','Disposable Yellow Gown','White Gown','Disposable Face Mask','Head Cover','Face Shield','Hand Sanitizer Gel','Gloves'],
-  'MEDICATION': ['Epinephrine 1/1000','Epinephrine 1/10000','adenosine','amiodarone','atropine','asprin','calcium chloride','calcium gluconate','dopamine','magnesium sulfate','nitroglycerin','sodium bicarbonate','ondasterone','metoclopramide','naloxon','albuterol','atrsol-polmcort','hedrocortisone','diclofinac','paracetamol','D10%','glucagon','normal saline','oral glocuse','diphenhydramine','lasix','haldol','lidocaine','TXA','ketamine','rocuronium','etomidate','succinylcholine']
+  'MEDICATION': ['Epinephrine 1/1000','Epinephrine 1/10000','adenosine','amiodarone','atropine','asprin','calcium cholride','calcium gluconate','dopamine','magnesium sulfate','nitroglycerin','sodium bicarbonate','ondasterone','metoclopramide','naloxon','albuterol','atrsol-polmcort','hedrocortisone','diclofinac','paracetamol','normal saline','D10%','glucagon','oral glocuse','diphenhydramine','lasix','haldol','lidocaine','TXA','ketamine','rocuronium','etmodate','succinylcholine']
 };
 
 // ======== STATE ========
@@ -1518,7 +1518,8 @@ function onQtyChange() { updateSubmit(); }
 
 function updateSubmit() {
   const qty = parseInt(document.getElementById('inputQty').value);
-  const ok = selectedCenter && selectedMovement && selectedItem && qty > 0;
+  const empId = document.getElementById('inputEmpId').value.trim();
+  const ok = selectedCenter && selectedMovement && selectedItem && qty > 0 && empId !== '';
   document.getElementById('btnSubmit').disabled = !ok;
 }
 
