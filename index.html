@@ -1101,7 +1101,7 @@
 <script>
 // ======== CONFIG ========
 const SHEET_ID = '1M09LZe5AigIgR7SFThowX8UQSOA05py3zDE_3bZV7w4';
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxqkj6WHdW6DLvGuOH4W__SQMgQ9GcZ5k6X-8UGjKWWcRYwSRPFwuGDuwPLFCKhDueu/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyH6JEIgd0lf8U58jlnSTLih31xs6cso4HUDKthcZf3nRzInu1mzhmsdx0UJEV30LgA/exec';
 const PIN = '1234'; // ← غيّر هذا الرمز
 
 // ======== EMPLOYEES DATABASE ========
@@ -1671,9 +1671,11 @@ const CENTERS = ['مركز قويزه 18','مركز كيلو 7','مركز الر
 
 async function loadDashboard() {
   const el = document.getElementById('dashContent');
-  el.innerHTML = '<div class="loading"><div class="spinner"></div>جاري تحميل البيانات من الشيت...</div>';
-  // Load stock for all centers
-  await Promise.all(CENTERS.map(c => loadStockFromSheet(c)));
+  el.innerHTML = '<div class="loading"><div class="spinner"></div>جاري تحميل البيانات...</div>';
+  // Load centers one by one to avoid timeout
+  for (const center of CENTERS) {
+    await loadStockFromSheet(center);
+  }
 
   // Count alerts per center from local stock
   const centerData = CENTERS.map(center => {
