@@ -1101,7 +1101,7 @@
 <script>
 // ======== CONFIG ========
 const SHEET_ID = '1M09LZe5AigIgR7SFThowX8UQSOA05py3zDE_3bZV7w4';
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwqh0JgjUJLu_mj23Ble7WeWijQn1PN9ZdAeK6e1OHUH73HmJwESg-KdYqAU0xEalUc/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxqkj6WHdW6DLvGuOH4W__SQMgQ9GcZ5k6X-8UGjKWWcRYwSRPFwuGDuwPLFCKhDueu/exec';
 const PIN = '1234'; // ← غيّر هذا الرمز
 
 // ======== EMPLOYEES DATABASE ========
@@ -1582,17 +1582,37 @@ const memStock = {};
 let memMovements = [];
 
 // ======== LOAD FROM GOOGLE SHEETS ========
+function fetchFromScript(params) {
+  return new Promise((resolve, reject) => {
+    const cbName = 'cb_' + Date.now();
+    const url = SCRIPT_URL + '?' + params + '&callback=' + cbName;
+    window[cbName] = (data) => {
+      delete window[cbName];
+      document.head.removeChild(script);
+      resolve(data);
+    };
+    const script = document.createElement('script');
+    script.src = url;
+    script.onerror = () => reject(new Error('Script error'));
+    document.head.appendChild(script);
+    setTimeout(() => {
+      if (window[cbName]) {
+        delete window[cbName];
+        try { document.head.removeChild(script); } catch(e) {}
+        reject(new Error('Timeout'));
+      }
+    }, 10000);
+  });
+}
+
 async function loadStockFromSheet(center) {
   if (!SCRIPT_URL) return;
   try {
-    const url = SCRIPT_URL + '?action=getStock&center=' + encodeURIComponent(center);
-    const res = await fetch(url);
-    const data = await res.json();
-    if (data.success && data.stock) {
+    const data = await fetchFromScript('action=getStock&center=' + encodeURIComponent(center));
+    if (data && data.success && data.stock) {
       Object.entries(data.stock).forEach(([item, val]) => {
         const key = center + '||' + item;
         memStock[key] = val.qty;
-        // store safety too
         window['safety_' + center + '||' + item] = val.safety;
       });
     }
@@ -1602,10 +1622,8 @@ async function loadStockFromSheet(center) {
 async function loadMovementsFromSheet() {
   if (!SCRIPT_URL) return;
   try {
-    const url = SCRIPT_URL + '?action=getMovements';
-    const res = await fetch(url);
-    const data = await res.json();
-    if (data.success && data.movements) {
+    const data = await fetchFromScript('action=getMovements');
+    if (data && data.success && data.movements) {
       memMovements = data.movements;
     }
   } catch(e) { console.log('Movements load error:', e); }
