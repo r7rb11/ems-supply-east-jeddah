@@ -864,7 +864,7 @@
   <div class="login-card">
     <label class="login-label">أدخل كودك الوظيفي</label>
     <input class="login-input" id="loginCode" type="number" placeholder="• • • • •" 
-      onkeydown="if(event.key==='Enter') tryLogin()">
+      onkeydown="if(event.key==='Enter') tryLogin()" autocomplete="off" inputmode="numeric">
     <div class="login-error" id="loginError"></div>
     <button class="login-btn" onclick="tryLogin()">دخول</button>
     <div class="login-hint">🔒 البيانات محمية ولا يمكن الوصول إليها بدون كود</div>
@@ -994,7 +994,7 @@
         <input type="text" id="inputEmpName" placeholder="اسم الموظف" style="font-family: inherit; padding:12px 14px; width:100%; background: var(--surface2); border:1px solid var(--border); border-radius:10px; color:var(--text); margin-bottom:14px; outline:none; direction:rtl">
       </div>
 
-      <button class="btn-submit" id="btnSubmit" disabled onclick="submitMovement()">
+      <button class="btn-submit" id="btnSubmit" disabled onclick="submitMovement()" type="button">
         تأكيد وإرسال
       </button>
     </div>
@@ -1583,27 +1583,22 @@ const memStock = {};
 let memMovements = [];
 
 // ======== LOAD FROM GOOGLE SHEETS ========
-function fetchFromScript(params) {
-  return new Promise((resolve, reject) => {
-    const cbName = 'cb_' + Date.now();
-    const url = SCRIPT_URL + '?' + params + '&callback=' + cbName;
-    window[cbName] = (data) => {
-      delete window[cbName];
-      document.head.removeChild(script);
-      resolve(data);
-    };
-    const script = document.createElement('script');
-    script.src = url;
-    script.onerror = () => reject(new Error('Script error'));
-    document.head.appendChild(script);
-    setTimeout(() => {
-      if (window[cbName]) {
-        delete window[cbName];
-        try { document.head.removeChild(script); } catch(e) {}
-        reject(new Error('Timeout'));
-      }
-    }, 10000);
-  });
+async function fetchFromScript(params) {
+  const url = SCRIPT_URL + '?' + params;
+  // Try fetch first (works on most browsers)
+  try {
+    const res = await fetch(url, { method: 'GET', mode: 'cors' });
+    const data = await res.json();
+    return data;
+  } catch(e1) {
+    // Fallback to no-cors mode (iOS Safari)
+    try {
+      const res = await fetch(url, { method: 'GET', mode: 'no-cors' });
+      return null;
+    } catch(e2) {
+      return null;
+    }
+  }
 }
 
 async function loadStockFromSheet(center) {
