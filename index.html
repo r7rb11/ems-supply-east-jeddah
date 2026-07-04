@@ -1627,7 +1627,22 @@ async function onCenterChange() {
   }
   updateSubmit();
 }
+function selectMovement(type) {
+    selectedMovement = type;
 
+    document.getElementById('btnAdd').className = 'mov-btn';
+    document.getElementById('btnSub').className = 'mov-btn';
+
+    if (type === 'إضافة') {
+        document.getElementById('btnAdd').classList.add('active');
+    } else {
+        document.getElementById('btnSub').classList.add('active');
+    }
+
+    show('stepBlock3');
+    setStep(3);
+    updateSubmit();
+}
 async function loadItemsFromSheet() {
   if (!SCRIPT_URL || !selectedCenter) return;
   try {
