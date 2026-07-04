@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-<meta charset="UTF-8">
+<!-- saved from url=(0048)https://r7rb11.github.io/ems-supply-east-jeddah/ -->
+<html lang="ar" dir="rtl"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>نظام تموين شرق جدة</title>
 <style>
@@ -863,8 +863,7 @@
   <div class="login-sub">قطاع شرق جدة — ٥ مراكز</div>
   <div class="login-card">
     <label class="login-label">أدخل كودك الوظيفي</label>
-    <input class="login-input" id="loginCode" type="number" placeholder="• • • • •" 
-      onkeydown="if(event.key==='Enter') tryLogin()" autocomplete="off" inputmode="numeric">
+    <input class="login-input" id="loginCode" type="number" placeholder="• • • • •" onkeydown="if(event.key===&#39;Enter&#39;) tryLogin()" autocomplete="off" inputmode="numeric">
     <div class="login-error" id="loginError"></div>
     <button class="login-btn" onclick="tryLogin()">دخول</button>
     <div class="login-hint">🔒 البيانات محمية ولا يمكن الوصول إليها بدون كود</div>
@@ -890,16 +889,16 @@
 
 <!-- TABS -->
 <div class="tabs">
-  <div class="tab active" onclick="showTab('movement')">
+  <div class="tab active" onclick="showTab(&#39;movement&#39;)">
     <span class="tab-icon">📦</span>حركة
   </div>
-  <div class="tab" id="tabDashboard" onclick="showTab('dashboard')">
+  <div class="tab" id="tabDashboard" onclick="showTab(&#39;dashboard&#39;)">
     <span class="tab-icon">📊</span>لوحة
   </div>
-  <div class="tab" id="tabHistory" onclick="showTab('history')">
+  <div class="tab" id="tabHistory" onclick="showTab(&#39;history&#39;)">
     <span class="tab-icon">📋</span>سجل
   </div>
-  <div class="tab" id="tabAnalytics" onclick="showTab('analytics')">
+  <div class="tab" id="tabAnalytics" onclick="showTab(&#39;analytics&#39;)">
     <span class="tab-icon">🔒</span>تحليل
   </div>
 </div>
@@ -942,10 +941,10 @@
       <div id="stepBlock2" style="display:none">
         <label>٢. نوع الحركة</label>
         <div class="movement-btns">
-          <button class="mov-btn" id="btnAdd" onclick="selectMovement('إضافة')">
+          <button class="mov-btn" id="btnAdd" onclick="selectMovement(&#39;إضافة&#39;)">
             <span class="mov-icon">⬆️</span>إضافة للمستودع
           </button>
-          <button class="mov-btn" id="btnSub" onclick="selectMovement('سحب')">
+          <button class="mov-btn" id="btnSub" onclick="selectMovement(&#39;سحب&#39;)">
             <span class="mov-icon">⬇️</span>سحب من المستودع
           </button>
         </div>
@@ -994,7 +993,7 @@
         <input type="text" id="inputEmpName" placeholder="اسم الموظف" style="font-family: inherit; padding:12px 14px; width:100%; background: var(--surface2); border:1px solid var(--border); border-radius:10px; color:var(--text); margin-bottom:14px; outline:none; direction:rtl">
       </div>
 
-      <button class="btn-submit" id="btnSubmit" disabled onclick="submitMovement()" type="button">
+      <button class="btn-submit" id="btnSubmit" disabled="" onclick="submitMovement()" type="button">
         تأكيد وإرسال
       </button>
     </div>
@@ -1022,9 +1021,9 @@
     <h3>صفحة التحليل السرية</h3>
     <p>أدخل رمز الدخول للوصول إلى التقارير والرسوم البيانية</p>
     <div class="pin-input">
-      <input class="pin-digit" id="p1" maxlength="1" type="password" oninput="pinNext(this,'p2')">
-      <input class="pin-digit" id="p2" maxlength="1" type="password" oninput="pinNext(this,'p3')">
-      <input class="pin-digit" id="p3" maxlength="1" type="password" oninput="pinNext(this,'p4')">
+      <input class="pin-digit" id="p1" maxlength="1" type="password" oninput="pinNext(this,&#39;p2&#39;)">
+      <input class="pin-digit" id="p2" maxlength="1" type="password" oninput="pinNext(this,&#39;p3&#39;)">
+      <input class="pin-digit" id="p3" maxlength="1" type="password" oninput="pinNext(this,&#39;p4&#39;)">
       <input class="pin-digit" id="p4" maxlength="1" type="password" oninput="pinNext(this,null)">
     </div>
     <div class="pin-error" id="pinError">❌ رمز خاطئ، حاول مجدداً</div>
@@ -1059,7 +1058,7 @@
   </div>
 
   <div class="scan-preview" id="scanPreview">
-    <video id="cameraFeed" autoplay playsinline muted></video>
+    <video id="cameraFeed" autoplay="" playsinline="" muted=""></video>
     <img id="capturedImg" alt="الصورة الملتقطة">
     <div class="scan-corner tl"></div>
     <div class="scan-corner tr"></div>
@@ -1076,7 +1075,7 @@
 
   <label style="width:100%;max-width:360px;margin-top:8px;display:block">
     <input type="file" accept="image/*" id="galleryInput" style="display:none" onchange="handleGalleryUpload(event)">
-    <div class="upload-btn" onclick="document.getElementById('galleryInput').click()" style="text-align:center;cursor:pointer;padding:12px;border:1px solid var(--border);border-radius:10px;color:var(--text2);font-size:13px">
+    <div class="upload-btn" onclick="document.getElementById(&#39;galleryInput&#39;).click()" style="text-align:center;cursor:pointer;padding:12px;border:1px solid var(--border);border-radius:10px;color:var(--text2);font-size:13px">
       🖼️ اختر من معرض الصور
     </div>
   </label>
@@ -1950,5 +1949,6 @@ function exportCSV() {
 }
 </script>
 </div><!-- end appWrapper -->
-</body>
-</html>
+
+
+</body></html>
