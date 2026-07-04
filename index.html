@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<!-- saved from url=(0048)https://r7rb11.github.io/ems-supply-east-jeddah/ -->
-<html lang="ar" dir="rtl"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>نظام تموين شرق جدة</title>
 <style>
@@ -851,6 +851,30 @@
   .user-role { font-size: 10px; color: var(--accent); }
   .logout-btn { background: none; border: 1px solid var(--border); border-radius: 8px; color: var(--text2); font-size: 11px; padding: 4px 8px; cursor: pointer; margin-top: 2px; font-family: inherit; }
 
+  /* ===== REQUEST SYSTEM ===== */
+  .req-type-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+  .req-type-btn { padding: 12px; border-radius: 10px; border: 2px solid var(--border); background: var(--surface2); color: var(--text2); font-family: 'IBM Plex Sans Arabic', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; text-align: center; }
+  .req-type-btn.selected { border-color: var(--accent); background: rgba(14,165,233,0.1); color: var(--accent2); }
+  textarea.req-notes { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-family: 'IBM Plex Sans Arabic', sans-serif; font-size: 14px; padding: 12px 14px; margin-bottom: 14px; outline: none; direction: rtl; resize: vertical; min-height: 70px; }
+  .req-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 16px; margin-bottom: 12px; }
+  .req-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; gap: 10px; }
+  .req-item-name { font-size: 15px; font-weight: 700; color: var(--text); }
+  .req-meta { font-size: 11px; color: var(--text2); margin-top: 4px; line-height: 1.6; }
+  .req-status { font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 20px; white-space: nowrap; }
+  .status-new { background: rgba(239,68,68,0.15); color: var(--red); }
+  .status-raised { background: rgba(245,158,11,0.15); color: var(--yellow); }
+  .status-sector { background: rgba(14,165,233,0.15); color: var(--accent2); }
+  .status-delivered { background: rgba(34,197,94,0.15); color: var(--green); }
+  .status-confirmed { background: rgba(34,197,94,0.3); color: var(--green); }
+  .req-actions { display: flex; gap: 8px; margin-top: 10px; }
+  .req-btn { flex: 1; padding: 10px; border-radius: 10px; border: none; font-family: 'IBM Plex Sans Arabic', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; }
+  .req-btn-primary { background: var(--accent); color: white; }
+  .req-btn-success { background: var(--green); color: white; }
+  .req-timeline { font-size: 10px; color: var(--text2); margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(30,58,95,0.4); display: flex; flex-wrap: wrap; gap: 6px; }
+  .req-timeline-step { display: flex; align-items: center; gap: 4px; }
+  .req-timeline-step.done { color: var(--green); }
+  .req-elapsed { font-size: 11px; font-weight: 700; color: var(--accent2); margin-top: 6px; }
+
 </style>
 </head>
 <body>
@@ -863,7 +887,8 @@
   <div class="login-sub">قطاع شرق جدة — ٥ مراكز</div>
   <div class="login-card">
     <label class="login-label">أدخل كودك الوظيفي</label>
-    <input class="login-input" id="loginCode" type="number" placeholder="• • • • •" onkeydown="if(event.key===&#39;Enter&#39;) tryLogin()" autocomplete="off" inputmode="numeric">
+    <input class="login-input" id="loginCode" type="number" placeholder="• • • • •" 
+      onkeydown="if(event.key==='Enter') tryLogin()" autocomplete="off" inputmode="numeric">
     <div class="login-error" id="loginError"></div>
     <button class="login-btn" onclick="tryLogin()">دخول</button>
     <div class="login-hint">🔒 البيانات محمية ولا يمكن الوصول إليها بدون كود</div>
@@ -889,16 +914,25 @@
 
 <!-- TABS -->
 <div class="tabs">
-  <div class="tab active" onclick="showTab(&#39;movement&#39;)">
+  <div class="tab active" onclick="showTab('movement')">
     <span class="tab-icon">📦</span>حركة
   </div>
-  <div class="tab" id="tabDashboard" onclick="showTab(&#39;dashboard&#39;)">
+  <div class="tab" id="tabRequest" onclick="showTab('request')">
+    <span class="tab-icon">🆘</span>طلب تموين
+  </div>
+  <div class="tab" id="tabRequests" onclick="showTab('requests')">
+    <span class="tab-icon">📥</span>الطلبات
+  </div>
+  <div class="tab" id="tabLogistics" onclick="showTab('logistics')">
+    <span class="tab-icon">🚚</span>لوجستي
+  </div>
+  <div class="tab" id="tabDashboard" onclick="showTab('dashboard')">
     <span class="tab-icon">📊</span>لوحة
   </div>
-  <div class="tab" id="tabHistory" onclick="showTab(&#39;history&#39;)">
+  <div class="tab" id="tabHistory" onclick="showTab('history')">
     <span class="tab-icon">📋</span>سجل
   </div>
-  <div class="tab" id="tabAnalytics" onclick="showTab(&#39;analytics&#39;)">
+  <div class="tab" id="tabAnalytics" onclick="showTab('analytics')">
     <span class="tab-icon">🔒</span>تحليل
   </div>
 </div>
@@ -941,10 +975,10 @@
       <div id="stepBlock2" style="display:none">
         <label>٢. نوع الحركة</label>
         <div class="movement-btns">
-          <button class="mov-btn" id="btnAdd" onclick="selectMovement(&#39;إضافة&#39;)">
+          <button class="mov-btn" id="btnAdd" onclick="selectMovement('إضافة')">
             <span class="mov-icon">⬆️</span>إضافة للمستودع
           </button>
-          <button class="mov-btn" id="btnSub" onclick="selectMovement(&#39;سحب&#39;)">
+          <button class="mov-btn" id="btnSub" onclick="selectMovement('سحب')">
             <span class="mov-icon">⬇️</span>سحب من المستودع
           </button>
         </div>
@@ -993,10 +1027,82 @@
         <input type="text" id="inputEmpName" placeholder="اسم الموظف" style="font-family: inherit; padding:12px 14px; width:100%; background: var(--surface2); border:1px solid var(--border); border-radius:10px; color:var(--text); margin-bottom:14px; outline:none; direction:rtl">
       </div>
 
-      <button class="btn-submit" id="btnSubmit" disabled="" onclick="submitMovement()" type="button">
+      <button class="btn-submit" id="btnSubmit" disabled onclick="submitMovement()" type="button">
         تأكيد وإرسال
       </button>
     </div>
+  </div>
+</div>
+
+<!-- ============ REQUEST SCREEN (مسعف) ============ -->
+<div id="screen-request" class="screen">
+  <div class="success-card" id="reqSuccessCard">
+    <div class="success-icon">📨</div>
+    <h3>تم إرسال الطلب</h3>
+    <p id="reqSuccessMsg"></p>
+    <button class="btn-new" onclick="resetRequestForm()">طلب جديد</button>
+  </div>
+
+  <div id="reqFormSection">
+    <div class="form-card">
+      <h2>🆘 طلب تموين</h2>
+
+      <label>المركز</label>
+      <select id="reqCenter">
+        <option value="">— اختر المركز —</option>
+        <option>مركز قويزه 18</option>
+        <option>مركز كيلو 7</option>
+        <option>مركز الرحيلي 8</option>
+        <option>مركز النسيم 6</option>
+        <option>مركز الحرزات 12</option>
+      </select>
+
+      <label>نوع الطلب</label>
+      <div class="req-type-btns">
+        <button class="req-type-btn" id="reqTypeList" onclick="selectReqType('list')">📋 من القائمة</button>
+        <button class="req-type-btn" id="reqTypeFree" onclick="selectReqType('free')">✍️ طلب حر</button>
+      </div>
+
+      <div id="reqListSection" style="display:none">
+        <label>الفئة</label>
+        <select id="reqCategory" onchange="onReqCategoryChange()">
+          <option value="">— اختر الفئة —</option>
+        </select>
+        <select id="reqItem" style="display:none">
+          <option value="">— اختر الصنف —</option>
+        </select>
+      </div>
+
+      <div id="reqFreeSection" style="display:none">
+        <label>اكتب الصنف المطلوب</label>
+        <input type="text" id="reqFreeText" placeholder="مثال: أكياس دم O+" style="font-family: inherit; padding:12px 14px; width:100%; background: var(--surface2); border:1px solid var(--border); border-radius:10px; color:var(--text); margin-bottom:14px; outline:none; direction:rtl">
+      </div>
+
+      <label>الكمية</label>
+      <input type="number" id="reqQty" min="1" placeholder="أدخل العدد">
+
+      <label>ملاحظات (اختياري)</label>
+      <textarea class="req-notes" id="reqNotes" placeholder="أي تفاصيل إضافية..."></textarea>
+
+      <label>الكود الوظيفي <span style="color:var(--red)">*</span></label>
+      <input type="number" id="reqEmpId" placeholder="أدخل كودك الوظيفي" oninput="updateReqSubmit()">
+
+      <button class="btn-submit" id="reqBtnSubmit" disabled onclick="submitRequest()">إرسال الطلب</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ REQUESTS MANAGEMENT (قيادي) ============ -->
+<div id="screen-requests" class="screen">
+  <div id="requestsContent">
+    <div class="loading"><div class="spinner"></div>جاري تحميل الطلبات...</div>
+  </div>
+</div>
+
+<!-- ============ LOGISTICS SCREEN (لوجستي) ============ -->
+<div id="screen-logistics" class="screen">
+  <div id="logisticsContent">
+    <div class="loading"><div class="spinner"></div>جاري تحميل التنبيهات...</div>
   </div>
 </div>
 
@@ -1021,9 +1127,9 @@
     <h3>صفحة التحليل السرية</h3>
     <p>أدخل رمز الدخول للوصول إلى التقارير والرسوم البيانية</p>
     <div class="pin-input">
-      <input class="pin-digit" id="p1" maxlength="1" type="password" oninput="pinNext(this,&#39;p2&#39;)">
-      <input class="pin-digit" id="p2" maxlength="1" type="password" oninput="pinNext(this,&#39;p3&#39;)">
-      <input class="pin-digit" id="p3" maxlength="1" type="password" oninput="pinNext(this,&#39;p4&#39;)">
+      <input class="pin-digit" id="p1" maxlength="1" type="password" oninput="pinNext(this,'p2')">
+      <input class="pin-digit" id="p2" maxlength="1" type="password" oninput="pinNext(this,'p3')">
+      <input class="pin-digit" id="p3" maxlength="1" type="password" oninput="pinNext(this,'p4')">
       <input class="pin-digit" id="p4" maxlength="1" type="password" oninput="pinNext(this,null)">
     </div>
     <div class="pin-error" id="pinError">❌ رمز خاطئ، حاول مجدداً</div>
@@ -1058,7 +1164,7 @@
   </div>
 
   <div class="scan-preview" id="scanPreview">
-    <video id="cameraFeed" autoplay="" playsinline="" muted=""></video>
+    <video id="cameraFeed" autoplay playsinline muted></video>
     <img id="capturedImg" alt="الصورة الملتقطة">
     <div class="scan-corner tl"></div>
     <div class="scan-corner tr"></div>
@@ -1075,7 +1181,7 @@
 
   <label style="width:100%;max-width:360px;margin-top:8px;display:block">
     <input type="file" accept="image/*" id="galleryInput" style="display:none" onchange="handleGalleryUpload(event)">
-    <div class="upload-btn" onclick="document.getElementById(&#39;galleryInput&#39;).click()" style="text-align:center;cursor:pointer;padding:12px;border:1px solid var(--border);border-radius:10px;color:var(--text2);font-size:13px">
+    <div class="upload-btn" onclick="document.getElementById('galleryInput').click()" style="text-align:center;cursor:pointer;padding:12px;border:1px solid var(--border);border-radius:10px;color:var(--text2);font-size:13px">
       🖼️ اختر من معرض الصور
     </div>
   </label>
@@ -1115,6 +1221,12 @@ const EMPLOYEES = {
   '2268':  { name: 'سعود قاسم عايض القرني', role: 'leader' },
   '9714':  { name: 'بندر جباره جابر العروي', role: 'leader' },
   '6031':  { name: 'مشاري احمد السهيمي', role: 'leader' },
+
+  // ===== الدعم اللوجستي =====
+  '9768':   { name: 'زامل فائز احمد الشمراني', role: 'logistics' },
+  '100170': { name: 'عمر عيد سالم الصاعدي', role: 'logistics' },
+  '101548': { name: 'فواز محمد العاقل كزيم', role: 'logistics' },
+  '102079': { name: 'بدر بن سعيد بن مبارك بن مبارك الزهراني', role: 'logistics' },
 
   // ===== المسعفون =====
   '10988': { name: 'اسماعيل سعيد محمد شبيلي', role: 'paramedic' },
@@ -1246,25 +1358,58 @@ function applyRoleUI() {
   document.getElementById('userNameBadge').textContent = currentUser.name.split(' ').slice(0,2).join(' ');
   document.getElementById('userRoleBadge').textContent =
     role === 'admin' ? '⭐ مدير النظام' :
-    role === 'leader' ? '🎖️ قيادي مناوب' : '🚑 مسعف';
+    role === 'leader' ? '🎖️ قيادي مناوب' :
+    role === 'logistics' ? '🚚 دعم لوجستي' : '🚑 مسعف';
+
+  const tabMovement = document.querySelector('.tab[onclick*="movement"]');
+  const tabRequest = document.getElementById('tabRequest');
+  const tabRequests = document.getElementById('tabRequests');
+  const tabLogistics = document.getElementById('tabLogistics');
   const tabDash = document.getElementById('tabDashboard');
   const tabHistory = document.getElementById('tabHistory');
   const tabAnalytics = document.getElementById('tabAnalytics');
+
+  // اخفاء الكل أولاً
+  [tabMovement, tabRequest, tabRequests, tabLogistics, tabDash, tabHistory, tabAnalytics].forEach(t => { if (t) t.style.display = 'none'; });
+
   if (role === 'paramedic') {
-    tabDash.style.display = 'none';
-    tabHistory.style.display = 'none';
-    tabAnalytics.style.display = 'none';
+    tabMovement.style.display = 'flex';
+    tabRequest.style.display = 'flex';
   } else if (role === 'leader') {
+    tabMovement.style.display = 'flex';
+    tabRequest.style.display = 'flex';
+    tabRequests.style.display = 'flex';
     tabDash.style.display = 'flex';
     tabHistory.style.display = 'flex';
-    tabAnalytics.style.display = 'none';
+  } else if (role === 'logistics') {
+    tabLogistics.style.display = 'flex';
+    showTabDirect('logistics');
   } else {
+    // admin
+    tabMovement.style.display = 'flex';
+    tabRequest.style.display = 'flex';
+    tabRequests.style.display = 'flex';
+    tabLogistics.style.display = 'flex';
     tabDash.style.display = 'flex';
     tabHistory.style.display = 'flex';
     tabAnalytics.style.display = 'flex';
   }
+
   document.getElementById('inputEmpId').value = currentUser.code;
   document.getElementById('inputEmpName').value = currentUser.name;
+  document.getElementById('reqEmpId').value = currentUser.code;
+
+  // إذا لوجستي، يفتح مباشرة على شاشته
+  if (role === 'logistics') {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-logistics').classList.add('active');
+    loadLogisticsScreen();
+  }
+}
+
+function showTabDirect(tabId) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + tabId).classList.add('active');
 }
 
 function logout() {
@@ -1458,10 +1603,12 @@ function showTab(tab) {
   event.currentTarget.classList.add('active');
   if (tab === 'dashboard') loadDashboard();
   if (tab === 'history') loadHistory();
+  if (tab === 'requests') loadRequestsScreen();
+  if (tab === 'logistics') loadLogisticsScreen();
 }
 
 // ======== FORM STEPS ========
-function onCenterChange() {
+async function onCenterChange() {
   selectedCenter = document.getElementById('selCenter').value;
   selectedMovement = '';
   selectedCategory = '';
@@ -1473,22 +1620,33 @@ function onCenterChange() {
   document.getElementById('inputQty').value = '';
 
   if (selectedCenter) {
+    // حمّل الأصناف من الشيت
+    await loadItemsFromSheet();
     show('stepBlock2');
     setStep(2);
   }
   updateSubmit();
 }
 
-function selectMovement(type) {
-  selectedMovement = type;
-  document.getElementById('btnAdd').className = 'mov-btn';
-  document.getElementById('btnSub').className = 'mov-btn';
-  if (type === 'إضافة') document.getElementById('btnAdd').className = 'mov-btn selected-add';
-  else document.getElementById('btnSub').className = 'mov-btn selected-sub';
-  show('stepBlock3');
-  setStep(3);
-  updateSubmit();
+async function loadItemsFromSheet() {
+  if (!SCRIPT_URL || !selectedCenter) return;
+  try {
+    const data = await fetchFromScript('action=getItems&center=' + encodeURIComponent(selectedCenter));
+    if (data && data.success && data.items) {
+      ITEMS = data.items;
+      populateCategories();
+    }
+  } catch(e) { console.log('Items load error:', e); }
 }
+
+function populateCategories() {
+  const sel = document.getElementById('selCategory');
+  sel.innerHTML = '<option value="">— اختر الفئة —</option>';
+  Object.keys(ITEMS).sort().forEach(cat => {
+    sel.innerHTML += `<option>${cat}</option>`;
+  });
+}
+
 
 function onCategoryChange() {
   selectedCategory = document.getElementById('selCategory').value;
@@ -1947,8 +2105,273 @@ function exportCSV() {
   const a = document.createElement('a');
   a.href = url; a.download = 'تموين_شرق_جده.csv'; a.click();
 }
+
+// ======================================================
+// ============ نظام طلبات التموين (جديد) ============
+// ======================================================
+
+let memRequests = [];
+let selectedReqType = '';
+
+// ----- المسعف: تعبئة الطلب -----
+function selectReqType(type) {
+  selectedReqType = type;
+  document.getElementById('reqTypeList').classList.toggle('selected', type === 'list');
+  document.getElementById('reqTypeFree').classList.toggle('selected', type === 'free');
+  document.getElementById('reqListSection').style.display = type === 'list' ? 'block' : 'none';
+  document.getElementById('reqFreeSection').style.display = type === 'free' ? 'block' : 'none';
+
+  if (type === 'list') {
+    const sel = document.getElementById('reqCategory');
+    sel.innerHTML = '<option value="">— اختر الفئة —</option>';
+    Object.keys(ITEMS).forEach(cat => sel.innerHTML += `<option>${cat}</option>`);
+  }
+  updateReqSubmit();
+}
+
+function onReqCategoryChange() {
+  const cat = document.getElementById('reqCategory').value;
+  const sel = document.getElementById('reqItem');
+  sel.innerHTML = '<option value="">— اختر الصنف —</option>';
+  if (cat && ITEMS[cat]) {
+    ITEMS[cat].forEach(item => sel.innerHTML += `<option>${item}</option>`);
+    sel.style.display = 'block';
+  }
+  updateReqSubmit();
+}
+
+function updateReqSubmit() {
+  const center = document.getElementById('reqCenter').value;
+  const qty = parseInt(document.getElementById('reqQty').value);
+  const empId = document.getElementById('reqEmpId').value.trim();
+  let itemOk = false;
+
+  if (selectedReqType === 'list') {
+    itemOk = document.getElementById('reqItem').value !== '';
+  } else if (selectedReqType === 'free') {
+    itemOk = document.getElementById('reqFreeText').value.trim() !== '';
+  }
+
+  const ok = center && selectedReqType && itemOk && qty > 0 && empId !== '';
+  document.getElementById('reqBtnSubmit').disabled = !ok;
+}
+
+// مراقبة الحقول لتفعيل الزر
+['reqCenter','reqQty','reqItem','reqFreeText'].forEach(id => {
+  document.addEventListener('input', (e) => { if (e.target.id === id) updateReqSubmit(); });
+  document.addEventListener('change', (e) => { if (e.target.id === id) updateReqSubmit(); });
+});
+
+async function submitRequest() {
+  const btn = document.getElementById('reqBtnSubmit');
+  btn.disabled = true;
+  btn.textContent = 'جاري الإرسال...';
+
+  const center = document.getElementById('reqCenter').value;
+  const qty = parseInt(document.getElementById('reqQty').value);
+  const notes = document.getElementById('reqNotes').value;
+  const empId = document.getElementById('reqEmpId').value;
+  const empName = currentUser ? currentUser.name : '';
+  const item = selectedReqType === 'list' ? document.getElementById('reqItem').value : document.getElementById('reqFreeText').value;
+  const now = new Date();
+  const dateStr = `${now.toLocaleDateString('ar-SA')} ${now.toLocaleTimeString('ar-SA')}`;
+
+  const reqObj = {
+    date: dateStr, center, empId, empName, item,
+    requestType: selectedReqType === 'list' ? 'من القائمة' : 'طلب حر',
+    qty, notes
+  };
+
+  try {
+    if (SCRIPT_URL) {
+      await fetch(SCRIPT_URL, {
+        method: 'POST', mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'addRequest', request: reqObj })
+      });
+    }
+    memRequests.unshift({ id: 'local-' + Date.now(), ...reqObj, status: 'جديد', raisedTime: '', arrivedSectorTime: '', logisticsCode: '', deliveredCenterTime: '', confirmedTime: '', confirmedBy: '' });
+
+    document.getElementById('reqSuccessMsg').textContent = `طلبك لـ ${item} (${qty}) في ${center} وصل للقيادي المناوب`;
+    document.getElementById('reqFormSection').style.display = 'none';
+    document.getElementById('reqSuccessCard').classList.add('show');
+  } catch(e) {
+    btn.disabled = false;
+    btn.textContent = 'إرسال الطلب';
+    alert('حدث خطأ، حاول مجدداً');
+  }
+}
+
+function resetRequestForm() {
+  selectedReqType = '';
+  document.getElementById('reqCenter').value = '';
+  document.getElementById('reqTypeList').classList.remove('selected');
+  document.getElementById('reqTypeFree').classList.remove('selected');
+  document.getElementById('reqListSection').style.display = 'none';
+  document.getElementById('reqFreeSection').style.display = 'none';
+  document.getElementById('reqCategory').innerHTML = '<option value="">— اختر الفئة —</option>';
+  document.getElementById('reqItem').innerHTML = '<option value="">— اختر الصنف —</option>';
+  document.getElementById('reqItem').style.display = 'none';
+  document.getElementById('reqQty').value = '';
+  document.getElementById('reqNotes').value = '';
+  document.getElementById('reqFreeText').value = '';
+  document.getElementById('reqSuccessCard').classList.remove('show');
+  document.getElementById('reqFormSection').style.display = 'block';
+  document.getElementById('reqBtnSubmit').disabled = true;
+  document.getElementById('reqBtnSubmit').textContent = 'إرسال الطلب';
+}
+
+// ----- جلب الطلبات من الشيت -----
+async function fetchRequests() {
+  if (!SCRIPT_URL) return [];
+  try {
+    const data = await fetchFromScript('action=getRequests');
+    if (data && data.success && data.requests) return data.requests;
+  } catch(e) { console.log('Requests load error:', e); }
+  return [];
+}
+
+// ----- القيادي: شاشة إدارة الطلبات -----
+async function loadRequestsScreen() {
+  const el = document.getElementById('requestsContent');
+  el.innerHTML = '<div class="loading"><div class="spinner"></div>جاري تحميل الطلبات...</div>';
+  const fetched = await fetchRequests();
+  memRequests = fetched.length ? fetched : memRequests;
+
+  if (memRequests.length === 0) {
+    el.innerHTML = `<div class="loading" style="color:var(--text2)">📥 لا توجد طلبات حالياً</div>`;
+    return;
+  }
+
+  el.innerHTML = `<div class="section-title">📥 طلبات التموين (${memRequests.length})</div>` +
+    memRequests.map(r => renderRequestCard(r, 'leader')).join('');
+}
+
+function statusClass(status) {
+  if (status === 'جديد') return 'status-new';
+  if (status === 'مرفوع للتموين') return 'status-raised';
+  if (status === 'وصل للقطاع') return 'status-sector';
+  if (status === 'تم التوصيل للمركز') return 'status-delivered';
+  if (status === 'مكتمل') return 'status-confirmed';
+  return 'status-new';
+}
+
+function renderRequestCard(r, viewerRole) {
+  const elapsed = r.raisedTime && !r.confirmedTime ? calcElapsed(r.date) : (r.confirmedTime ? calcElapsedBetween(r.date, r.confirmedTime) : '');
+
+  let actionsHtml = '';
+  if (viewerRole === 'leader') {
+    if (r.status === 'جديد') {
+      actionsHtml = `<button class="req-btn req-btn-primary" onclick="raiseRequest('${r.id}')">📤 رفع لإدارة التموين</button>`;
+    } else if (r.status === 'مرفوع للتموين') {
+      actionsHtml = `<button class="req-btn req-btn-success" onclick="markArrivedSector('${r.id}')">✅ تم الوصول للقطاع</button>`;
+    } else if (r.status === 'تم التوصيل للمركز') {
+      actionsHtml = `<button class="req-btn req-btn-success" onclick="confirmRequest('${r.id}')">✔️ تأكيد الاستلام النهائي</button>`;
+    }
+  } else if (viewerRole === 'logistics') {
+    if (r.status === 'وصل للقطاع') {
+      actionsHtml = `<button class="req-btn req-btn-success" onclick="markDeliveredCenter('${r.id}')">🚚 تم التوصيل للمركز</button>`;
+    }
+  }
+
+  return `
+    <div class="req-card">
+      <div class="req-card-header">
+        <div>
+          <div class="req-item-name">${r.item}</div>
+          <div class="req-meta">
+            👤 ${r.empName} (${r.empId})<br>
+            🏥 ${r.center} · 📦 ${r.qty} · ${r.requestType}<br>
+            🕐 ${r.date}
+            ${r.notes ? '<br>📝 ' + r.notes : ''}
+          </div>
+        </div>
+        <div class="req-status ${statusClass(r.status)}">${r.status}</div>
+      </div>
+      <div class="req-timeline">
+        <span class="req-timeline-step ${r.date ? 'done' : ''}">1️⃣ طلب</span>
+        <span class="req-timeline-step ${r.raisedTime ? 'done' : ''}">2️⃣ رفع للتموين</span>
+        <span class="req-timeline-step ${r.arrivedSectorTime ? 'done' : ''}">3️⃣ وصل القطاع</span>
+        <span class="req-timeline-step ${r.deliveredCenterTime ? 'done' : ''}">4️⃣ وصل المركز</span>
+        <span class="req-timeline-step ${r.confirmedTime ? 'done' : ''}">5️⃣ مكتمل</span>
+      </div>
+      ${elapsed ? `<div class="req-elapsed">⏱️ ${elapsed}</div>` : ''}
+      ${actionsHtml ? `<div class="req-actions">${actionsHtml}</div>` : ''}
+    </div>
+  `;
+}
+
+function calcElapsed(startDateStr) {
+  return '⏳ بانتظار...';
+}
+
+function calcElapsedBetween(start, end) {
+  return '✅ اكتمل';
+}
+
+async function updateRequestStatus(requestId, updates) {
+  if (SCRIPT_URL) {
+    try {
+      await fetch(SCRIPT_URL, {
+        method: 'POST', mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'updateRequest', requestId, updates })
+      });
+    } catch(e) { console.log('Update error:', e); }
+  }
+  const req = memRequests.find(r => r.id === requestId);
+  if (req) Object.assign(req, updates);
+}
+
+async function raiseRequest(id) {
+  const now = new Date().toLocaleString('ar-SA');
+  await updateRequestStatus(id, { status: 'مرفوع للتموين', raisedTime: now });
+  loadRequestsScreen();
+}
+
+async function markArrivedSector(id) {
+  const now = new Date().toLocaleString('ar-SA');
+  await updateRequestStatus(id, { status: 'وصل للقطاع', arrivedSectorTime: now });
+  loadRequestsScreen();
+}
+
+async function markDeliveredCenter(id) {
+  const now = new Date().toLocaleString('ar-SA');
+  await updateRequestStatus(id, { status: 'تم التوصيل للمركز', deliveredCenterTime: now, logisticsCode: currentUser.code });
+  loadLogisticsScreen();
+}
+
+async function confirmRequest(id) {
+  const now = new Date().toLocaleString('ar-SA');
+  await updateRequestStatus(id, { status: 'مكتمل', confirmedTime: now, confirmedBy: currentUser.code });
+  loadRequestsScreen();
+}
+
+// ----- اللوجستي: شاشة التنبيهات -----
+async function loadLogisticsScreen() {
+  const el = document.getElementById('logisticsContent');
+  el.innerHTML = '<div class="loading"><div class="spinner"></div>جاري تحميل التنبيهات...</div>';
+  const fetched = await fetchRequests();
+  memRequests = fetched.length ? fetched : memRequests;
+
+  const pending = memRequests.filter(r => r.status === 'وصل للقطاع');
+  const delivered = memRequests.filter(r => r.status === 'تم التوصيل للمركز' || r.status === 'مكتمل');
+
+  let html = `<div class="section-title">🚚 تنبيهات بانتظار التوصيل (${pending.length})</div>`;
+  if (pending.length === 0) {
+    html += `<div class="loading" style="color:var(--text2);padding:20px">لا يوجد تموين بانتظار التوصيل حالياً</div>`;
+  } else {
+    html += pending.map(r => renderRequestCard(r, 'logistics')).join('');
+  }
+
+  if (delivered.length > 0) {
+    html += `<div class="section-title" style="margin-top:16px">✅ تم توصيلها مؤخراً</div>`;
+    html += delivered.slice(0, 10).map(r => renderRequestCard(r, 'logistics')).join('');
+  }
+
+  el.innerHTML = html;
+}
 </script>
 </div><!-- end appWrapper -->
-
-
-</body></html>
+</body>
+</html>
