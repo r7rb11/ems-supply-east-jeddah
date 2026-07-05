@@ -887,8 +887,8 @@
   <div class="login-sub">قطاع شرق جدة — ٥ مراكز</div>
   <div class="login-card">
     <label class="login-label">أدخل كودك الوظيفي</label>
-    <input class="login-input" id="loginCode" type="text" placeholder="• • • • •" 
-      onkeydown="if(event.key==='Enter') tryLogin()" autocomplete="off" inputmode="numeric" pattern="[0-9]*">
+    <input class="login-input" id="loginCode" type="number" placeholder="• • • • •" 
+      onkeydown="if(event.key==='Enter') tryLogin()" autocomplete="off" inputmode="numeric">
     <div class="login-error" id="loginError"></div>
     <button class="login-btn" onclick="tryLogin()">دخول</button>
     <div class="login-hint">🔒 البيانات محمية ولا يمكن الوصول إليها بدون كود</div>
@@ -1309,7 +1309,7 @@ const EMPLOYEES = {
   '102640':{ name: 'ممدوح محمد ناجي علي', role: 'paramedic' },
   '102775':{ name: 'عبداله نائف غزاي المقاطي', role: 'paramedic' },
   '6608':  { name: 'عبدالعزيز احمد محمد الغامدي', role: 'paramedic' },
-  // duplicate removed
+  '102079':{ name: 'بدر بن سعيد بن مبارك الزهراني', role: 'paramedic' },
 };
 
 // ======== ITEMS BY CATEGORY ========
@@ -1339,8 +1339,7 @@ let currentUser = null;
 // ======== LOGIN ========
 function tryLogin() {
   const code = document.getElementById('loginCode').value.trim();
-  const code=(document.getElementById('loginCode').value||'').trim();
-  const emp = EMPLOYEES[String(code)];
+  const emp = EMPLOYEES[code];
   const errEl = document.getElementById('loginError');
   if (!emp) {
     errEl.style.display = 'block';
@@ -1609,6 +1608,23 @@ function showTab(tab) {
 }
 
 // ======== FORM STEPS ========
+async 
+function selectMovement(type){
+  selectedMovement=type;
+  const add=document.getElementById('btnAdd');
+  const sub=document.getElementById('btnSub');
+  add.className='mov-btn';
+  sub.className='mov-btn';
+  if(type==='إضافة'){
+    add.classList.add('selected-add');
+  }else{
+    sub.classList.add('selected-sub');
+  }
+  show('stepBlock3');
+  setStep(3);
+  updateSubmit();
+}
+
 async function onCenterChange() {
   selectedCenter = document.getElementById('selCenter').value;
   selectedMovement = '';
