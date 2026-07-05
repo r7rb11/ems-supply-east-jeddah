@@ -887,8 +887,8 @@
   <div class="login-sub">قطاع شرق جدة — ٥ مراكز</div>
   <div class="login-card">
     <label class="login-label">أدخل كودك الوظيفي</label>
-    <input class="login-input" id="loginCode" type="number" placeholder="• • • • •" 
-      onkeydown="if(event.key==='Enter') tryLogin()" autocomplete="off" inputmode="numeric">
+    <input class="login-input" id="loginCode" type="text" placeholder="• • • • •" 
+      onkeydown="if(event.key==='Enter') tryLogin()" autocomplete="off" inputmode="numeric" pattern="[0-9]*">
     <div class="login-error" id="loginError"></div>
     <button class="login-btn" onclick="tryLogin()">دخول</button>
     <div class="login-hint">🔒 البيانات محمية ولا يمكن الوصول إليها بدون كود</div>
@@ -1001,11 +1001,19 @@
         </div>
 
         <select id="selCategory" onchange="onCategoryChange()">
-            <option value="">-- اختر الفئة --</option>
+          <option value="">— اختر الفئة —</option>
+          <option>AIRWAY</option>
+          <option>BREATHING</option>
+          <option>CIRCULATION</option>
+          <option>CARDIAC</option>
+          <option>TRAUMA</option>
+          <option>OB</option>
+          <option>MEDICAL CONSUMABLES</option>
+          <option>INFECTION CONTROL</option>
+          <option>MEDICATION</option>
         </select>
-        
         <select id="selItem" style="display:none" onchange="onItemChange()">
-            <option value="">-- اختر الصنف --</option>
+          <option value="">— اختر الصنف —</option>
         </select>
       </div>
 
@@ -1198,7 +1206,7 @@
 <script>
 // ======== CONFIG ========
 const SHEET_ID = '1M09LZe5AigIgR7SFThowX8UQSOA05py3zDE_3bZV7w4';
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwVFH56S2XBp367NWAUc-93W4m1SjGPkOyX_eDW-1G-yymblf9_dCz8DPAMRNozVcDR/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyH6JEIgd0lf8U58jlnSTLih31xs6cso4HUDKthcZf3nRzInu1mzhmsdx0UJEV30LgA/exec';
 const PIN = '1234'; // ← غيّر هذا الرمز
 
 // ======== EMPLOYEES DATABASE ========
@@ -1301,11 +1309,21 @@ const EMPLOYEES = {
   '102640':{ name: 'ممدوح محمد ناجي علي', role: 'paramedic' },
   '102775':{ name: 'عبداله نائف غزاي المقاطي', role: 'paramedic' },
   '6608':  { name: 'عبدالعزيز احمد محمد الغامدي', role: 'paramedic' },
-  '102079':{ name: 'بدر بن سعيد بن مبارك الزهراني', role: 'paramedic' },
+  // duplicate removed
 };
 
 // ======== ITEMS BY CATEGORY ========
-let ITEMS = {};
+const ITEMS = {
+  'AIRWAY': ['Bougie','ETT Secure Device','NPA Size 8','NPA Size 7.3','NPA Size 6','NPA Size 3.5','ETT 7.5','ETT 8.0','ETT 7.0','ETT 4.5','ETT 4.0','ETT 3.0','ETT 8.5','ETT 6.0','ETT 6.5','ETT 5.5','ETT 5.0','ETCO2 Colormetric','LMA Size 2','LMA Size 3','OPA Size 4','OPA Size 2','OPA 50mm','OPA 90mm','OPA 40mm','OPA 000','Laryngoscope Handle','Mac Blade Size 00','Lubricant Gel'],
+  'BREATHING': ['Infant BVM (ambu bag)','Pediatric BVM (ambu bag)','Adult BVM (ambu bag)','Pediatric nebulizer oxygen mask','Pediatric simple oxygen mask','Pediatric Non-rebreather (NRB) oxygen mask','Adult simple oxygen mask','Adult nebulizer oxygen mask','Adult Non-rebreather (NRB) oxygen mask','Adult Nasal cannula','Flowmeter','Oxygen Humidifier','Main Oxygen Tank (Full)','Main Oxygen Tank (Empty)','Oxygen D Tank (Full)','Oxygen D Tank (Empty)','Soft Suction Catheter','Soft Catheter','Suction Bag','Yankauer Suction Set'],
+  'CIRCULATION': ['IV Cannula 14G','IV Cannula 16G','IV Cannula 18G','IV Cannula 20G','IV Cannula 22G','IV Cannula 24G','Lancets','IO Needle','IV Set','1ml Syringe','5ml Syringe','20ml Syringe','10ml Syringe','Three Way Stopcock'],
+  'CARDIAC': ['AED Pads Adult','AED Pads Pediatric','ECG Electrodes Pack'],
+  'TRAUMA': ['Foldable Stretcher','Adult Long Backboard','Pediatric Backboard','Scoop Stretcher','Spare Ambulance Stretcher','Sam Splint','KED','Traction Splint','Femur Fixation Splint','Stair Chair','Elastic Tubular Bandage','Pediatric C-Collar','Adhesive Tape','Disposable Tourniquet','Thermal Blanket','Plaster Bandage','Spider Straps','Elastic Bandage','Multi Trauma Dressing','4x4 Gauze','2x2 Gauze','Burn Pad','Adult C-collar'],
+  'OB': ['OB Kit'],
+  'MEDICAL CONSUMABLES': ['Vomiting Bags','Tongue Depressor','Triage Tags','Ice Pack','Bed Sheet Roll'],
+  'INFECTION CONTROL': ['Disinfectant Spray','Disposable Yellow Gown','White Gown','Disposable Face Mask','Head Cover','Face Shield','Hand Sanitizer Gel','Gloves'],
+  'MEDICATION': ['Epinephrine 1/1000','Epinephrine 1/10000','adenosine','amiodarone','atropine','asprin','calcium cholride','calcium gluconate','dopamine','magnesium sulfate','nitroglycerin','sodium bicarbonate','ondasterone','metoclopramide','naloxon','albuterol','atrsol-polmcort','hedrocortisone','diclofinac','paracetamol','normal saline','D10%','glucagon','oral glocuse','diphenhydramine','lasix','haldol','lidocaine','TXA','ketamine','rocuronium','etmodate','succinylcholine']
+};
 
 // ======== STATE ========
 let selectedCenter = '';
@@ -1321,7 +1339,8 @@ let currentUser = null;
 // ======== LOGIN ========
 function tryLogin() {
   const code = document.getElementById('loginCode').value.trim();
-  const emp = EMPLOYEES[code];
+  const code=(document.getElementById('loginCode').value||'').trim();
+  const emp = EMPLOYEES[String(code)];
   const errEl = document.getElementById('loginError');
   if (!emp) {
     errEl.style.display = 'block';
@@ -1401,25 +1420,6 @@ function logout() {
   document.getElementById('loginCode').value = '';
   document.getElementById('loginError').style.display = 'none';
   resetForm();
-}
-
-
-
-// ======== MOVEMENT TYPE ========
-function selectMovement(type){
-  selectedMovement=type;
-  const add=document.getElementById('btnAdd');
-  const sub=document.getElementById('btnSub');
-  add.classList.remove('selected-add');
-  sub.classList.remove('selected-sub');
-  if(type==='إضافة'){
-    add.classList.add('selected-add');
-  }else{
-    sub.classList.add('selected-sub');
-  }
-  document.getElementById('stepBlock3').style.display='block';
-  setStep(3);
-  updateSubmit();
 }
 
 // ======== CAMERA ========
@@ -1632,14 +1632,12 @@ async function onCenterChange() {
 async function loadItemsFromSheet() {
   if (!SCRIPT_URL || !selectedCenter) return;
   try {
-    const data = await fetchFromScript('action=getItems');
-
-console.log(data);
-
-if (data && data.success && data.items) {
-    ITEMS = data.items;
-    console.log(ITEMS);
-    populateCategories();
+    const data = await fetchFromScript('action=getItems&center=' + encodeURIComponent(selectedCenter));
+    if (data && data.success && data.items) {
+      ITEMS = data.items;
+      populateCategories();
+    }
+  } catch(e) { console.log('Items load error:', e); }
 }
 
 function populateCategories() {
