@@ -1628,12 +1628,14 @@ async function onCenterChange() {
 async function loadItemsFromSheet() {
   if (!SCRIPT_URL || !selectedCenter) return;
   try {
-    const data = await fetchFromScript('action=getItems&center=' + encodeURIComponent(selectedCenter));
-    if (data && data.success && data.items) {
-      ITEMS = data.items;
-      populateCategories();
-    }
-  } catch(e) { console.log('Items load error:', e); }
+    const data = await fetchFromScript('action=getItems');
+
+console.log(data);
+
+if (data && data.success && data.items) {
+    ITEMS = data.items;
+    console.log(ITEMS);
+    populateCategories();
 }
 
 function populateCategories() {
