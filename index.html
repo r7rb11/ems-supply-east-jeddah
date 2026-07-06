@@ -2044,29 +2044,35 @@ function renderDetailContent(center) {
     let html = '';
 
     Object.entries(ITEMS).forEach(([cat, items]) => {
-      <div class="category-title">${cat}</div>`;
-    items.forEach(item => {
 
-    const itemName = item.name;
+        html += `
+        <div class="category-section">
+            <div class="category-title">${cat}</div>
+        `;
 
-    const stock = STOCK_CACHE[center]?.[itemName]?.qty ?? 0;
+        items.forEach(item => {
 
-    const safety = getSafety(center, itemName);
+            const itemName = item.name;
 
-    const isWarn = stock <= safety;
+            const stock = STOCK_CACHE[center]?.[itemName]?.qty ?? 0;
+            const safety = getSafety(center, itemName);
+            const isWarn = stock <= safety;
 
-    html += `
-        <div class="item-row">
-            <div class="item-row-name">${itemName}</div>
-          <div class="item-row-right">
-            <div class="item-qty" style="color:${isWarn ? 'var(--red)' : 'var(--green)'}">${stock}</div>
-            <div class="item-status ${isWarn ? 'status-warn' : 'status-ok'}"></div>
-          </div>
-        </div>`;
+            html += `
+                <div class="item-row">
+                    <div class="item-row-name">${itemName}</div>
+                    <div class="item-row-right">
+                        <div class="item-qty" style="color:${isWarn ? 'var(--red)' : 'var(--green)'}">${stock}</div>
+                        <div class="item-status ${isWarn ? 'status-warn' : 'status-ok'}"></div>
+                    </div>
+                </div>
+            `;
+        });
+
+        html += `</div>`;
     });
-    html += `</div>`;
-  });
-  document.getElementById('detailContent').innerHTML = html;
+
+    document.getElementById('detailContent').innerHTML = html;
 }
 
 // ======== HISTORY ========
