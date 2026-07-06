@@ -1791,7 +1791,13 @@ function onItemChange() {
 
   selectedItemId = document.getElementById('selItem').value;
 
+  console.log("selectedCategory =", selectedCategory);
+  console.log("selectedItemId =", selectedItemId);
+  console.log("ITEMS[selectedCategory] =", ITEMS[selectedCategory]);
+
   const item = ITEMS[selectedCategory].find(i => i.id == selectedItemId);
+
+  console.log("FOUND ITEM =", item);
 
   selectedItem = item ? item.name : "";
 
