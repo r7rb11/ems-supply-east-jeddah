@@ -2045,12 +2045,18 @@ function renderDetailContent(center) {
     html += `<div class="category-section">
       <div class="category-title">${cat}</div>`;
     items.forEach(item => {
-      const stock = STOCK_CACHE[center]?.[item]?.qty ?? 0;
-      const safety = getSafety(center, item);
-      const isWarn = stock <= safety;
-      html += `
+
+    const itemName = item.name;
+
+    const stock = STOCK_CACHE[center]?.[itemName]?.qty ?? 0;
+
+    const safety = getSafety(center, itemName);
+
+    const isWarn = stock <= safety;
+
+    html += `
         <div class="item-row">
-          <div class="item-row-name">${item}</div>
+            <div class="item-row-name">${itemName}</div>
           <div class="item-row-right">
             <div class="item-qty" style="color:${isWarn ? 'var(--red)' : 'var(--green)'}">${stock}</div>
             <div class="item-status ${isWarn ? 'status-warn' : 'status-ok'}"></div>
