@@ -1715,8 +1715,6 @@ async function onCenterChange() {
 
 async function loadItemsFromSheet() {
 
-    if (!selectedCenter) return;
-
     try {
 
         ITEMS = await loadItemsAPI();
