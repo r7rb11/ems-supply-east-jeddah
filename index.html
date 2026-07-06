@@ -963,11 +963,11 @@
         <label>١. اختر المركز</label>
         <select id="selCenter" onchange="onCenterChange()">
           <option value="">— اختر المركز —</option>
-          <option>مركز قويزه 18</option>
-          <option>مركز كيلو 7</option>
-          <option>مركز الرحيلي 8</option>
-          <option>مركز النسيم 6</option>
-          <option>مركز الحرزات 12</option>
+          <option value="qweiza">مركز قويزة</option>
+          <option value="kilo7">مركز كيلو سبعة</option>
+          <option value="rahili">مركز الرحيلي</option>
+          <option value="naseem">مركز النسيم</option>
+          <option value="harazat">مركز الحرازات</option>
         </select>
       </div>
 
@@ -1050,11 +1050,11 @@
       <label>المركز</label>
       <select id="reqCenter">
         <option value="">— اختر المركز —</option>
-        <option>مركز قويزه 18</option>
-        <option>مركز كيلو 7</option>
-        <option>مركز الرحيلي 8</option>
-        <option>مركز النسيم 6</option>
-        <option>مركز الحرزات 12</option>
+        <option value="qweiza">مركز قويزة</option>
+        <option value="kilo7">مركز كيلو سبعة</option>
+        <option value="rahili">مركز الرحيلي</option>
+        <option value="naseem">مركز النسيم</option>
+        <option value="harazat">مركز الحرازات</option>
       </select>
 
       <label>نوع الطلب</label>
@@ -1889,7 +1889,13 @@ function resetForm() {
 }
 
 // ======== DASHBOARD ========
-const CENTERS = ['مركز قويزه 18','مركز كيلو 7','مركز الرحيلي 8','مركز النسيم 6','مركز الحرزات 12'];
+const CENTERS = [
+'qweiza',
+'kilo7',
+'rahili',
+'naseem',
+'harazat'
+];
 
 async function loadDashboard() {
   const el = document.getElementById('dashContent');
