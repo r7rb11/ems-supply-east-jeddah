@@ -1255,13 +1255,11 @@ async function apiPost(data) {
 }
 
 async function loadStockAPI(centerId) {
+  console.log("loadStockAPI center =", centerId);
 
-    return await apiGet("stock", {
-
-        center: centerId
-
-    });
-
+  return await apiGet("stock", {
+    center: centerId
+  });
 }
 async function loadRequestsAPI() {
     return await apiGet("requests");
