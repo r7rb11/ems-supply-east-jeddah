@@ -1599,7 +1599,12 @@ async function analyzePhoto() {
 
   const allItems = [];
   Object.entries(ITEMS).forEach(([cat, items]) => {
-    items.forEach(item => allItems.push({ item, cat }));
+    items.forEach(item => {
+    allItems.push({
+        item: item.name,
+        cat
+    });
+});
   });
 
   const prompt = `You are an EMS medical supply recognition system.
@@ -1669,8 +1674,11 @@ function useScannedItem() {
   const sel = document.getElementById('selItem');
   sel.innerHTML = '<option value="">— اختر الصنف —</option>';
   ITEMS[scannedResult.cat].forEach(item => {
-    sel.innerHTML += `<option${item === scannedResult.item ? ' selected' : ''}>${item}</option>`;
-  });
+    sel.innerHTML += `
+        <option ${item.name === scannedResult.item ? 'selected' : ''}>
+            ${item.name}
+        </option>`;
+});
   sel.style.display = 'block';
 
   // Set selected item
@@ -1755,8 +1763,8 @@ function onCategoryChange() {
   sel.innerHTML = '<option value="">— اختر الصنف —</option>';
   if (selectedCategory && ITEMS[selectedCategory]) {
     ITEMS[selectedCategory].forEach(item => {
-      sel.innerHTML += `<option>${item}</option>`;
-    });
+    sel.innerHTML += `<option>${item.name}</option>`;
+});
     sel.style.display = 'block';
   }
   updateSubmit();
@@ -1993,8 +2001,12 @@ function getAlertItems() {
   CENTERS.forEach(center => {
     Object.entries(ITEMS).forEach(([cat, items]) => {
       items.forEach(item => {
-        const stock = STOCK_CACHE[center]?.[item]?.qty ?? 0;
-        const safety = getSafety(center, item);
+
+    const itemName = item.name;
+
+    const stock = STOCK_CACHE[center]?.[itemName]?.qty ?? 0;
+
+    const safety = getSafety(center, itemName);
         if (stock <= safety) {
           html += `
             <div class="alert-item">
@@ -2256,7 +2268,9 @@ function onReqCategoryChange() {
   const sel = document.getElementById('reqItem');
   sel.innerHTML = '<option value="">— اختر الصنف —</option>';
   if (cat && ITEMS[cat]) {
-    ITEMS[cat].forEach(item => sel.innerHTML += `<option>${item}</option>`);
+    ITEMS[cat].forEach(item => {
+    sel.innerHTML += `<option>${item.name}</option>`;
+});
     sel.style.display = 'block';
   }
   updateReqSubmit();
