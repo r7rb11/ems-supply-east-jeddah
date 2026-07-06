@@ -2385,16 +2385,15 @@ async function updateRequestStatus(requestId, updates) {
   if (SCRIPT_URL) {
     try {
       await apiPost({
-  action:'updateRequest',
-  requestId,
-  updates
-});
-        method: 'POST', mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'updateRequest', requestId, updates })
+        action: 'updateRequest',
+        requestId,
+        updates
       });
-    } catch(e) { console.log('Update error:', e); }
+    } catch (e) {
+      console.log('Update error:', e);
+    }
   }
+
   const req = memRequests.find(r => r.id === requestId);
   if (req) Object.assign(req, updates);
 }
