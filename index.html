@@ -1787,6 +1787,8 @@ function onCategoryChange() {
 
 function onItemChange() {
 
+  console.log("onItemChange fired");
+
   selectedItemId = document.getElementById('selItem').value;
 
   const item = ITEMS[selectedCategory].find(i => i.id == selectedItemId);
@@ -1800,7 +1802,6 @@ function onItemChange() {
 
   updateSubmit();
 }
-
 function onQtyChange() { updateSubmit(); }
 
 function updateSubmit() {
