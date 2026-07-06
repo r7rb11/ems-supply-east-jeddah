@@ -1760,24 +1760,44 @@ function populateCategories() {
 
 function onCategoryChange() {
   selectedCategory = document.getElementById('selCategory').value;
-  selectedItem = '';
+
+  selectedItem = "";
+  selectedItemId = "";
+
   const sel = document.getElementById('selItem');
   sel.innerHTML = '<option value="">— اختر الصنف —</option>';
+
   if (selectedCategory && ITEMS[selectedCategory]) {
+
     ITEMS[selectedCategory].forEach(item => {
-    sel.innerHTML += `<option>${item.name}</option>`;
-});
+
+      sel.innerHTML += `
+        <option value="${item.id}">
+          ${item.name}
+        </option>
+      `;
+
+    });
+
     sel.style.display = 'block';
   }
+
   updateSubmit();
 }
 
 function onItemChange() {
-  selectedItem = document.getElementById('selItem').value;
+
+  selectedItemId = document.getElementById('selItem').value;
+
+  const item = ITEMS[selectedCategory].find(i => i.id == selectedItemId);
+
+  selectedItem = item ? item.name : "";
+
   if (selectedItem) {
     show('stepBlock4');
     setStep(4);
   }
+
   updateSubmit();
 }
 
