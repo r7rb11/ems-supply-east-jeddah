@@ -1718,20 +1718,15 @@ async function submitMovement() {
     if (SCRIPT_URL) {
       await fetch(SCRIPT_URL, {
         method: 'POST',
-        mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'addRow', row })
       });
     }
 
-    // Save to memory
-    memMovements.unshift({ timestamp, center: selectedCenter, type: selectedMovement, item: selectedItem, category: selectedCategory, qty, empId, empName });
-    if (memMovements.length > 200) memMovements = memMovements.slice(0, 200);
+    await loadDashboard();
+await loadMovements();
+await loadCenter(selectedCenter);
     
-
-    // Update local stock
-    updateLocalStock(selectedCenter, selectedItem, selectedMovement, qty);
-
     document.getElementById('successMsg').textContent =
       `${selectedMovement === 'إضافة' ? '⬆️ أضفت' : '⬇️ سحبت'} ${qty} من ${selectedItem} في ${selectedCenter}`;
     document.getElementById('formSection').style.display = 'none';
@@ -1745,8 +1740,6 @@ async function submitMovement() {
 }
 
 // ======== IN-MEMORY STORAGE ========
-const memStock = {};
-let memMovements = [];
 
 // ======== LOAD FROM GOOGLE SHEETS ========
 async function fetchFromScript(params) {
