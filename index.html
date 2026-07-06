@@ -1817,8 +1817,15 @@ async function submitMovement() {
   try {
     if (SCRIPT_URL) {
       await apiPost({
-  action: 'addRow',
-  row
+    action: "movement",
+    center: selectedCenter,
+    type: selectedMovement,
+    itemId: selectedItemId,
+    item: selectedItem,
+    category: selectedCategory,
+    qty: qty,
+    empId: empId,
+    empName: empName
 });
     }
 
