@@ -1857,10 +1857,10 @@ async function submitMovement() {
 });
     }
 
-    await Promise.all([
-  loadDashboard(),
-  loadMovements(),
-  loadCenter(selectedCenter)
+   await Promise.all([
+    loadDashboard(),
+    loadMovementsFromSheet(),
+    loadCenter(selectedCenter)
 ]);
     
     document.getElementById('successMsg').textContent =
@@ -1883,24 +1883,24 @@ async function loadStockFromSheet(center) {
 
     const data = await loadStockAPI(center);
 
-    if (!window.STOCK_CACHE)
-      window.STOCK_CACHE = {};
+if (!window.STOCK_CACHE) {
+    window.STOCK_CACHE = {};
+}
 
+if (!window.STOCK_CACHE[center]) {
     window.STOCK_CACHE[center] = {};
+}
 
-    data.forEach(row => {
-
-      window.STOCK_CACHE[center][row.item] = {
+data.forEach(row => {
+    window.STOCK_CACHE[center][row.item] = {
         qty: row.qty,
         safety: row.safety,
         category: row.category,
         id: row.id
-      };
+    };
 
-      window['safety_' + center + '||' + row.item] = row.safety;
-
-    });
-
+    window['safety_' + center + '||' + row.item] = row.safety;
+});
   } catch (e) {
     console.log('Stock load error:', e);
   }
