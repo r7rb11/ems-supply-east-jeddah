@@ -1860,7 +1860,6 @@ async function submitMovement() {
    await Promise.all([
     loadDashboard(),
     loadMovementsFromSheet(),
-    loadCenter(selectedCenter)
 ]);
     
     document.getElementById('successMsg').textContent =
