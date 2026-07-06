@@ -2040,9 +2040,14 @@ function closeDetail() {
 }
 
 function renderDetailContent(center) {
-  let html = '';
-  Object.entries(ITEMS).forEach(([cat, items]) => {
-    html += `<div class="category-section">
+
+    console.log("renderDetailContent");
+    console.log(center);
+    console.log(ITEMS);
+
+    let html = '';
+
+    Object.entries(ITEMS).forEach(([cat, items]) => {
       <div class="category-title">${cat}</div>`;
     items.forEach(item => {
 
