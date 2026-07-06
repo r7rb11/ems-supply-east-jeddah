@@ -1715,21 +1715,27 @@ async function onCenterChange() {
 
 async function loadItemsFromSheet() {
 
-    try {
+  console.log("LOAD ITEMS START");
 
-        ITEMS = await loadItemsAPI();
+  try {
 
-        populateCategories();
+    const data = await loadItemsAPI();
 
-    }
+    console.log("API DATA =", data);
 
-    catch(err){
+    ITEMS = data;
 
-        console.error(err);
+    console.log("ITEMS AFTER =", ITEMS);
 
-        alert("تعذر تحميل الأصناف.");
+    populateCategories();
 
-    }
+  } catch(err) {
+
+    console.error("LOAD ITEMS ERROR =", err);
+
+    alert("تعذر تحميل الأصناف");
+
+  }
 
 }
 
