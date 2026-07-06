@@ -1978,7 +1978,7 @@ async function loadDashboard() {
 
     total++;
 
-    const stock = STOCK_CACHE[center]?.[itemName]?.qty ?? 0;
+    const stock = window.STOCK_CACHE?.[center]?.[itemName]?.qty ?? 0;
 
     const safety = getSafety(center, itemName);
 
