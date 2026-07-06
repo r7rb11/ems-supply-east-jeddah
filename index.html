@@ -1834,6 +1834,7 @@ async function submitMovement() {
     document.getElementById('successCard').classList.add('show');
 
   } catch(e) {
+      console.error("SUBMIT ERROR:", e);
     btn.disabled = false;
     btn.textContent = 'تأكيد وإرسال';
     alert('حدث خطأ، حاول مجدداً');
