@@ -1923,7 +1923,7 @@ async function loadDashboard() {
 
   const totalAlerts = centerData.reduce((s, c) => s + c.alerts, 0);
   const totalOk = centerData.reduce((s, c) => s + (c.total - c.alerts), 0);
-  const movements = JSON.parse(JSON.stringify(memMovements));
+  const movements = await loadHistoryAPI() || [];
 
   el.innerHTML = `
     <div class="dash-grid">
