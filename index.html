@@ -1834,9 +1834,6 @@ async function loadStockFromSheet(center) {
 
     const data = await loadStockAPI(center);
 
-    console.log("CENTER =", center);
-    console.log("DATA =", data);
-
     if (!window.STOCK_CACHE)
       window.STOCK_CACHE = {};
 
@@ -1855,8 +1852,8 @@ async function loadStockFromSheet(center) {
 
     });
 
-  } catch(e) {
-    console.log("Stock load error:", e);
+  } catch (e) {
+    console.log('Stock load error:', e);
   }
 }
 
