@@ -1829,26 +1829,34 @@ async function submitMovement() {
 
 async function loadStockFromSheet(center) {
   if (!SCRIPT_URL) return;
+
   try {
+
     const data = await loadStockAPI(center);
-    if (data) {
-      Object.entries(data.stock).forEach(([item, val]) => {
 
-    const key = center + '||' + item;
+    if (!window.STOCK_CACHE)
+      window.STOCK_CACHE = {};
 
-    if (!window.STOCK_CACHE) window.STOCK_CACHE = {};
+    window.STOCK_CACHE[center] = {};
 
-    if (!window.STOCK_CACHE[center]) {
-        window.STOCK_CACHE[center] = {};
-    }
+    data.forEach(row => {
 
-    window.STOCK_CACHE[center][item] = val;
+      window.STOCK_CACHE[center][row.item] = {
+        qty: row.qty,
+        safety: row.safety,
+        category: row.category,
+        id: row.id
+      };
 
-    window['safety_' + center + '||' + item] = val.safety;
+      window['safety_' + center + '||' + row.item] = row.safety;
 
-});
-    }
-  } catch(e) { console.log('Stock load error:', e); }
+    });
+
+  } catch(e) {
+
+    console.log('Stock load error:', e);
+
+  }
 }
 
 async function loadMovementsFromSheet() {
@@ -1891,6 +1899,13 @@ function resetForm() {
 }
 
 // ======== DASHBOARD ========
+const CENTER_NAMES = {
+  qweiza: 'مركز قويزة',
+  kilo7: 'مركز كيلو سبعة',
+  rahili: 'مركز الرحيلي',
+  naseem: 'مركز النسيم',
+  harazat: 'مركز الحرازات'
+};
 const CENTERS = [
 'qweiza',
 'kilo7',
@@ -1954,7 +1969,7 @@ async function loadDashboard() {
     ${centerData.map(c => `
       <div class="center-card" onclick="openDetail('${c.center}')">
         <div class="center-card-header">
-          <div class="center-name">${c.center}</div>
+          <div class="center-name">${CENTER_NAMES[c.center]}</div>
           <div class="center-badge ${c.alerts > 0 ? 'badge-warn' : 'badge-ok'}">
             ${c.alerts > 0 ? `⚠️ ${c.alerts} ناقص` : '✅ مكتمل'}
           </div>
