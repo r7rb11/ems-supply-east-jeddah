@@ -2046,7 +2046,7 @@ function getAlertItems() {
 
     const itemName = item.name;
 
-    const stock = STOCK_CACHE[center]?.[itemName]?.qty ?? 0;
+    const stock = window.STOCK_CACHE?.[center]?.[itemName]?.qty ?? 0;
 
     const safety = getSafety(center, itemName);
         if (stock <= safety) {
@@ -2109,7 +2109,7 @@ function renderDetailContent(center) {
 
             const itemName = item.name;
 
-            const stock = STOCK_CACHE[center]?.[itemName]?.qty ?? 0;
+            const stock = window.STOCK_CACHE[center]?.[itemName]?.qty ?? 0;
             const safety = getSafety(center, itemName);
             const isWarn = stock <= safety;
 
