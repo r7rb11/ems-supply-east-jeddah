@@ -2013,10 +2013,13 @@ function getAlertItems() {
 
 // ======== CENTER DETAIL ========
 async function openDetail(center) {
+    await loadStockFromSheet(center);
 
-  if (Object.keys(ITEMS).length === 0) {
-    ITEMS = await loadItemsAPI();
-  }
+    alert("openDetail");
+
+    if (Object.keys(ITEMS).length === 0) {
+        ITEMS = await loadItemsAPI();
+    }
 
   await loadStockFromSheet(center);
 
