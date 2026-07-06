@@ -2256,15 +2256,12 @@ async function submitRequest() {
 
   try {
     if (SCRIPT_URL) {
-      await apiPost({
-  action:'addRequest',
-  request:reqObj
-});
-        method: 'POST', mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'addRequest', request: reqObj })
-      });
+        await apiPost({
+            action: 'addRequest',
+            request: reqObj
+        });
     }
+    
     memRequests.unshift({ id: 'local-' + Date.now(), ...reqObj, status: 'جديد', raisedTime: '', arrivedSectorTime: '', logisticsCode: '', deliveredCenterTime: '', confirmedTime: '', confirmedBy: '' });
 
     document.getElementById('reqSuccessMsg').textContent = `طلبك لـ ${item} (${qty}) في ${center} وصل للقيادي المناوب`;
