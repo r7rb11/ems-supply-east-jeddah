@@ -2013,17 +2013,13 @@ function getAlertItems() {
 
 // ======== CENTER DETAIL ========
 async function openDetail(center) {
+
+    console.log("openDetail");
+    console.log(center);
+
     await loadStockFromSheet(center);
 
-    alert("openDetail");
-
-    if (Object.keys(ITEMS).length === 0) {
-        ITEMS = await loadItemsAPI();
-    }
-
-  await loadStockFromSheet(center);
-
-  currentDetailCenter = center;
+    currentDetailCenter = center;
 
   document.getElementById('detailTitle').textContent = center;
   document.getElementById('detailSub').textContent = 'حالة المخزون التفصيلية';
