@@ -1207,6 +1207,82 @@
 // ======== CONFIG ========
 const SHEET_ID = '1M09LZe5AigIgR7SFThowX8UQSOA05py3zDE_3bZV7w4';
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwVFH56S2XBp367NWAUc-93W4m1SjGPkOyX_eDW-1G-yymblf9_dCz8DPAMRNozVcDR/exec';
+  /****************************************************************
+ * API CLIENT
+ ****************************************************************/
+
+async function apiGet(action, params = {}) {
+
+    const url = new URL(SCRIPT_URL);
+
+    url.searchParams.set("action", action);
+
+    Object.entries(params).forEach(([key, value]) => {
+        url.searchParams.set(key, value);
+    });
+
+    const response = await fetch(url);
+
+    const json = await response.json();
+
+    if (!json.success)
+        throw new Error(json.message);
+
+    return json.data;
+}
+
+async function apiPost(data) {
+
+    const response = await fetch(SCRIPT_URL, {
+
+        method: "POST",
+
+        body: JSON.stringify(data)
+
+    });
+
+    const json = await response.json();
+
+    if (!json.success)
+        throw new Error(json.message);
+
+    return json.data;
+}
+  async function loadItemsAPI() {
+
+    return await apiGet("items");
+
+}
+
+async function loadStockAPI(centerId) {
+
+    return await apiGet("stock", {
+
+        center: centerId
+
+    });
+
+}
+async function loadRequestsAPI() {
+    return await apiGet("requests");
+}
+async function loadDashboardAPI() {
+
+    return await apiGet("dashboard");
+
+}
+
+async function loadAlertsAPI() {
+
+    return await apiGet("alerts");
+
+}
+
+async function loadHistoryAPI() {
+
+    return await apiGet("history");
+
+}
 const PIN = '1234'; // ← غيّر هذا الرمز
 
 // ======== EMPLOYEES DATABASE ========
@@ -1638,14 +1714,25 @@ async function onCenterChange() {
 }
 
 async function loadItemsFromSheet() {
-  if (!SCRIPT_URL || !selectedCenter) return;
-  try {
-    const data = await fetchFromScript('action=getItems&center=' + encodeURIComponent(selectedCenter));
-    if (data && data.success && data.items) {
-      ITEMS = data.items;
-      populateCategories();
+
+    if (!selectedCenter) return;
+
+    try {
+
+        ITEMS = await loadItemsAPI();
+
+        populateCategories();
+
     }
-  } catch(e) { console.log('Items load error:', e); }
+
+    catch(err){
+
+        console.error(err);
+
+        alert("تعذر تحميل الأصناف.");
+
+    }
+
 }
 
 function populateCategories() {
@@ -1716,16 +1803,17 @@ async function submitMovement() {
 
   try {
     if (SCRIPT_URL) {
-      await fetch(SCRIPT_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'addRow', row })
-      });
+      await apiPost({
+  action: 'addRow',
+  row
+});
     }
 
-    await loadDashboard();
-await loadMovements();
-await loadCenter(selectedCenter);
+    await Promise.all([
+  loadDashboard(),
+  loadMovements(),
+  loadCenter(selectedCenter)
+]);
     
     document.getElementById('successMsg').textContent =
       `${selectedMovement === 'إضافة' ? '⬆️ أضفت' : '⬇️ سحبت'} ${qty} من ${selectedItem} في ${selectedCenter}`;
@@ -1739,62 +1827,44 @@ await loadCenter(selectedCenter);
   }
 }
 
-// ======== IN-MEMORY STORAGE ========
-
-// ======== LOAD FROM GOOGLE SHEETS ========
-async function fetchFromScript(params) {
-  const url = SCRIPT_URL + '?' + params;
-  // Try fetch first (works on most browsers)
-  try {
-    const res = await fetch(url, { method: 'GET', mode: 'cors' });
-    const data = await res.json();
-    return data;
-  } catch(e1) {
-    // Fallback to no-cors mode (iOS Safari)
-    try {
-      const res = await fetch(url, { method: 'GET', mode: 'no-cors' });
-      return null;
-    } catch(e2) {
-      return null;
-    }
-  }
-}
-
 async function loadStockFromSheet(center) {
   if (!SCRIPT_URL) return;
   try {
-    const data = await fetchFromScript('action=getStock&center=' + encodeURIComponent(center));
-    if (data && data.success && data.stock) {
+    const data = await loadStockAPI(center);
+    if (data) {
       Object.entries(data.stock).forEach(([item, val]) => {
-        const key = center + '||' + item;
-        memStock[key] = val.qty;
-        window['safety_' + center + '||' + item] = val.safety;
-      });
+
+    const key = center + '||' + item;
+
+    if (!window.STOCK_CACHE) window.STOCK_CACHE = {};
+
+    if (!window.STOCK_CACHE[center]) {
+        window.STOCK_CACHE[center] = {};
+    }
+
+    window.STOCK_CACHE[center][item] = val;
+
+    window['safety_' + center + '||' + item] = val.safety;
+
+});
     }
   } catch(e) { console.log('Stock load error:', e); }
 }
 
 async function loadMovementsFromSheet() {
-  if (!SCRIPT_URL) return;
-  try {
-    const data = await fetchFromScript('action=getMovements');
-    if (data && data.success && data.movements) {
-      memMovements = data.movements;
+
+    try {
+
+        memMovements = await loadHistoryAPI();
+
     }
-  } catch(e) { console.log('Movements load error:', e); }
-}
 
-function updateLocalStock(center, item, type, qty) {
-  const key = center + '||' + item;
-  if (memStock[key] === undefined) memStock[key] = 100;
-  if (type === 'إضافة') memStock[key] += qty;
-  else memStock[key] -= qty;
-  if (memStock[key] < 0) memStock[key] = 0;
-}
+    catch(err){
 
-function getLocalStock(center, item) {
-  const key = center + '||' + item;
-  return memStock[key] !== undefined ? memStock[key] : 100;
+        console.error(err);
+
+    }
+
 }
 
 function getSafety(center, item) {
@@ -1828,7 +1898,7 @@ async function loadDashboard() {
   el.innerHTML = '<div class="loading"><div class="spinner"></div>جاري تحميل البيانات...</div>';
   // Load centers one by one to avoid timeout
   for (const center of CENTERS) {
-    await loadStockFromSheet(center);
+    await loadStockAPI(center);
   }
 
   // Count alerts per center from local stock
@@ -1837,7 +1907,7 @@ async function loadDashboard() {
     Object.entries(ITEMS).forEach(([cat, items]) => {
       items.forEach(item => {
         total++;
-        const stock = getLocalStock(center, item);
+        const stock = STOCK_CACHE[center]?.[item]?.qty ?? 0;
         const safety = getSafety(center, item);
         if (stock <= safety) alerts++;
       });
@@ -1900,7 +1970,7 @@ function getAlertItems() {
   CENTERS.forEach(center => {
     Object.entries(ITEMS).forEach(([cat, items]) => {
       items.forEach(item => {
-        const stock = getLocalStock(center, item);
+        const stock = STOCK_CACHE[center]?.[item]?.qty ?? 0;
         const safety = getSafety(center, item);
         if (stock <= safety) {
           html += `
@@ -1938,7 +2008,7 @@ function renderDetailContent(center) {
     html += `<div class="category-section">
       <div class="category-title">${cat}</div>`;
     items.forEach(item => {
-      const stock = getLocalStock(center, item);
+      const stock = STOCK_CACHE[center]?.[item]?.qty ?? 0;
       const safety = getSafety(center, item);
       const isWarn = stock <= safety;
       html += `
@@ -2186,7 +2256,10 @@ async function submitRequest() {
 
   try {
     if (SCRIPT_URL) {
-      await fetch(SCRIPT_URL, {
+      await apiPost({
+  action:'addRequest',
+  request:reqObj
+});
         method: 'POST', mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'addRequest', request: reqObj })
@@ -2225,12 +2298,12 @@ function resetRequestForm() {
 
 // ----- جلب الطلبات من الشيت -----
 async function fetchRequests() {
-  if (!SCRIPT_URL) return [];
-  try {
-    const data = await fetchFromScript('action=getRequests');
-    if (data && data.success && data.requests) return data.requests;
-  } catch(e) { console.log('Requests load error:', e); }
-  return [];
+    try {
+        return await loadRequestsAPI();
+    } catch (e) {
+        console.log(e);
+        return [];
+    }
 }
 
 // ----- القيادي: شاشة إدارة الطلبات -----
@@ -2314,7 +2387,11 @@ function calcElapsedBetween(start, end) {
 async function updateRequestStatus(requestId, updates) {
   if (SCRIPT_URL) {
     try {
-      await fetch(SCRIPT_URL, {
+      await apiPost({
+  action:'updateRequest',
+  requestId,
+  updates
+});
         method: 'POST', mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'updateRequest', requestId, updates })
