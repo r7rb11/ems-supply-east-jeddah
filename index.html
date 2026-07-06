@@ -1732,6 +1732,7 @@ async function loadItemsFromSheet() {
     console.log("API DATA =", data);
 
     ITEMS = data;
+    console.log("ITEMS loaded:", Object.keys(ITEMS).length);
 
     console.log("ITEMS AFTER =", ITEMS);
 
@@ -1937,11 +1938,17 @@ async function loadDashboard() {
     let total = 0, alerts = 0;
     Object.entries(ITEMS).forEach(([cat, items]) => {
       items.forEach(item => {
-        total++;
-        const stock = STOCK_CACHE[center]?.[item]?.qty ?? 0;
-        const safety = getSafety(center, item);
-        if (stock <= safety) alerts++;
-      });
+
+    const itemName = item.name;
+
+    total++;
+
+    const stock = STOCK_CACHE[center]?.[itemName]?.qty ?? 0;
+
+    const safety = getSafety(center, itemName);
+
+    if (stock <= safety) alerts++;
+});
     });
     return { center, total, alerts, pct: Math.round(((total - alerts) / total) * 100) };
   });
@@ -2026,8 +2033,9 @@ function getAlertItems() {
 // ======== CENTER DETAIL ========
 async function openDetail(center) {
 
-    console.log("openDetail");
-    console.log(center);
+    if (Object.keys(ITEMS).length === 0) {
+        await loadItemsFromSheet();
+    }
 
     await loadStockFromSheet(center);
 
