@@ -2048,7 +2048,9 @@ function getAlertItems() {
       items.forEach(item => {
 
     const itemName = item.name;
-
+    console.log("CENTER =", center);
+    console.log("ITEM =", itemName);
+    console.log(window.STOCK_CACHE?.[center]?.[itemName]);
     const stock = window.STOCK_CACHE?.[center]?.[itemName]?.qty ?? 0;
 
     const safety = getSafety(center, itemName);
