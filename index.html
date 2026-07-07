@@ -2035,6 +2035,24 @@ async function loadDashboard() {
 
     });
 
+    console.log("STEP 4");
+    console.log(centerData);
+
+    const totalAlerts =
+        centerData.reduce((s, c) => s + c.alerts, 0);
+
+    const totalOk =
+        centerData.reduce((s, c) => s + (c.total - c.alerts), 0);
+
+    const movements =
+        await loadHistoryAPI() || [];
+
+    console.log("STEP 5");
+
+    // اترك باقي كود HTML كما هو بدون أي تعديل
+
+}
+
     const totalAlerts = centerData.reduce((s, c) => s + c.alerts, 0);
     const totalOk = centerData.reduce((s, c) => s + (c.total - c.alerts), 0);
     const movements = await loadHistoryAPI() || [];
