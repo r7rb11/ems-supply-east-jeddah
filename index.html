@@ -2098,10 +2098,10 @@ function closeDetail() {
 function renderDetailContent(center) {
 
     console.log("renderDetailContent");
-    console.log(center);
-    console.log(ITEMS);
-
-    let html = '';
+    console.log("CENTER =", center);
+    console.log("CACHE =", window.STOCK_CACHE);
+    console.log("CENTER CACHE =", window.STOCK_CACHE?.[center]);
+  let html = '';
 
     Object.entries(ITEMS).forEach(([cat, items]) => {
 
