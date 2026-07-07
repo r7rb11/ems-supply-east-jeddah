@@ -1891,6 +1891,9 @@ if (!window.STOCK_CACHE[center]) {
 }
 
 data.forEach(row => {
+
+    console.log("STOCK KEY =", row.item, row.qty);
+
     window.STOCK_CACHE[center][row.item] = {
         qty: row.qty,
         safety: row.safety,
