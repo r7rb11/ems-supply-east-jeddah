@@ -1966,39 +1966,66 @@ const CENTERS = [
 ];
 
 async function loadDashboard() {
-  const el = document.getElementById('dashContent');
-  el.innerHTML = '<div class="loading"><div class="spinner"></div>جاري تحميل البيانات...</div>';
-       if (Object.keys(ITEMS).length === 0) {
-    await loadItemsFromSheet();
-} 
-  // Load centers one by one to avoid timeout
-  for (const center of CENTERS) {
-    await loadStockFromSheet(center);
-  }
+    const el = document.getElementById('dashContent');
 
-  // Count alerts per center from local stock
-  const centerData = CENTERS.map(center => {
-    let total = 0, alerts = 0;
-    Object.entries(ITEMS).forEach(([cat, items]) => {
-      items.forEach(item => {
+    el.innerHTML = `
+        <div class="loading">
+            <div class="spinner"></div>
+            جاري تحميل البيانات...
+        </div>
+    `;
 
-    const itemName = item.name;
+    // تحميل الأصناف إذا لم تكن محملة
+    if (Object.keys(ITEMS).length === 0) {
+        await loadItemsFromSheet();
+    }
 
-    total++;
+    // تحميل مخزون جميع المراكز إلى STOCK_CACHE
+    for (const center of CENTERS) {
+        await loadStockFromSheet(center);
+    }
 
-    const stock = window.STOCK_CACHE?.[center]?.[itemName]?.qty ?? 0;
+    // ===== DEBUG =====
+    console.log("CACHE AFTER LOAD =", window.STOCK_CACHE);
 
-    const safety = getSafety(center, itemName);
+    // حساب التنبيهات
+    const centerData = CENTERS.map(center => {
+        let total = 0;
+        let alerts = 0;
 
-    if (stock <= safety) alerts++;
-});
+        Object.entries(ITEMS).forEach(([cat, items]) => {
+            items.forEach(item => {
+
+                const itemName = item.name;
+                total++;
+
+                const stock =
+                    window.STOCK_CACHE?.[center]?.[itemName]?.qty ?? 0;
+
+                const safety = getSafety(center, itemName);
+
+                console.log(
+                    "CENTER =", center,
+                    "| ITEM =", itemName,
+                    "| STOCK =", stock,
+                    "| SAFETY =", safety
+                );
+
+                if (stock <= safety) alerts++;
+            });
+        });
+
+        return {
+            center,
+            total,
+            alerts,
+            pct: Math.round(((total - alerts) / total) * 100)
+        };
     });
-    return { center, total, alerts, pct: Math.round(((total - alerts) / total) * 100) };
-  });
 
-  const totalAlerts = centerData.reduce((s, c) => s + c.alerts, 0);
-  const totalOk = centerData.reduce((s, c) => s + (c.total - c.alerts), 0);
-  const movements = await loadHistoryAPI() || [];
+    const totalAlerts = centerData.reduce((s, c) => s + c.alerts, 0);
+    const totalOk = centerData.reduce((s, c) => s + (c.total - c.alerts), 0);
+    const movements = await loadHistoryAPI() || [];
 
   el.innerHTML = `
     <div class="dash-grid">
