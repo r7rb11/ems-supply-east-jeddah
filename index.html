@@ -2011,21 +2011,28 @@ async function loadDashboard() {
 
             items.forEach(item => {
 
-                const itemName = item.name;
+    try {
 
-                total++;
+        const itemName = item.name;
 
-                const stock =
-                    window.STOCK_CACHE?.[center]?.[itemName]?.qty ?? 0;
+        total++;
 
-                const safety = getSafety(center, itemName);
+        const stock =
+            window.STOCK_CACHE?.[center]?.[itemName]?.qty ?? 0;
 
-                if (stock <= safety) alerts++;
+        const safety = getSafety(center, itemName);
 
-            });
+        if (stock <= safety) alerts++;
 
-        });
+    } catch (e) {
 
+        console.error("ERROR ITEM =", item);
+        console.error(e);
+
+    }
+
+});
+console.log("FINISHED CENTER", center);
         return {
             center,
             total,
