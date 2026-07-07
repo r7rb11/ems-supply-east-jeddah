@@ -1966,7 +1966,9 @@ const CENTERS = [
 ];
 
 async function loadDashboard() {
-    alert("LOAD DASHBOARD");
+
+    console.log("===== LOAD DASHBOARD START =====");
+
     const el = document.getElementById('dashContent');
 
     el.innerHTML = `
@@ -1976,28 +1978,41 @@ async function loadDashboard() {
         </div>
     `;
 
+    console.log("STEP 1");
+
     // تحميل الأصناف إذا لم تكن محملة
     if (Object.keys(ITEMS).length === 0) {
+        console.log("Loading ITEMS...");
         await loadItemsFromSheet();
     }
 
-    // تحميل مخزون جميع المراكز إلى STOCK_CACHE
+    console.log("STEP 2");
+    console.log("ITEMS =", Object.keys(ITEMS).length);
+
+    // تحميل مخزون جميع المراكز
     for (const center of CENTERS) {
+        console.log("Loading center:", center);
         await loadStockFromSheet(center);
+        console.log("Loaded center:", center);
     }
 
-    // ===== DEBUG =====
-    console.log("CACHE AFTER LOAD =", window.STOCK_CACHE);
+    console.log("STEP 3");
+    console.log("CACHE =", window.STOCK_CACHE);
 
-    // حساب التنبيهات
+    // حساب الإحصائيات
     const centerData = CENTERS.map(center => {
+
+        console.log("CENTER =", center);
+
         let total = 0;
         let alerts = 0;
 
         Object.entries(ITEMS).forEach(([cat, items]) => {
+
             items.forEach(item => {
 
                 const itemName = item.name;
+
                 total++;
 
                 const stock =
@@ -2005,15 +2020,10 @@ async function loadDashboard() {
 
                 const safety = getSafety(center, itemName);
 
-                console.log(
-                    "CENTER =", center,
-                    "| ITEM =", itemName,
-                    "| STOCK =", stock,
-                    "| SAFETY =", safety
-                );
-
                 if (stock <= safety) alerts++;
+
             });
+
         });
 
         return {
@@ -2022,6 +2032,7 @@ async function loadDashboard() {
             alerts,
             pct: Math.round(((total - alerts) / total) * 100)
         };
+
     });
 
     const totalAlerts = centerData.reduce((s, c) => s + c.alerts, 0);
