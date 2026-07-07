@@ -1966,9 +1966,12 @@ const CENTERS = [
 async function loadDashboard() {
   const el = document.getElementById('dashContent');
   el.innerHTML = '<div class="loading"><div class="spinner"></div>جاري تحميل البيانات...</div>';
+       if (Object.keys(ITEMS).length === 0) {
+    await loadItemsFromSheet();
+} 
   // Load centers one by one to avoid timeout
   for (const center of CENTERS) {
-    await loadStockAPI(center);
+    await loadStockFromSheet(center);
   }
 
   // Count alerts per center from local stock
