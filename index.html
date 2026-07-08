@@ -1837,6 +1837,26 @@ async function submitMovement() {
   btn.textContent = 'جاري الإرسال...';
 
   const qty = parseInt(document.getElementById('inputQty').value);
+
+// تحقق من أن الكمية صحيحة
+if (isNaN(qty) || qty <= 0) {
+  alert("❌ أدخل كمية صحيحة أكبر من صفر.");
+  btn.disabled = false;
+  btn.textContent = 'تأكيد وإرسال';
+  return;
+}
+
+const currentStock =
+  window.STOCK_CACHE?.[selectedCenter]?.[selectedItem]?.qty ?? 0;
+
+// منع السحب بأكثر من الكمية المتوفرة
+if (selectedMovement === 'سحب' && qty > currentStock) {
+  alert(`❌ لا يمكن سحب ${qty}.\n\nالمتوفر حالياً: ${currentStock}`);
+  btn.disabled = false;
+  btn.textContent = 'تأكيد وإرسال';
+  return;
+}
+  
   const empId = document.getElementById('inputEmpId').value || '';
   const empName = document.getElementById('inputEmpName').value || '';
   const now = new Date();
