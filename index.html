@@ -2002,50 +2002,49 @@ async function loadDashboard() {
     // حساب الإحصائيات
     const centerData = CENTERS.map(center => {
 
-        console.log("CENTER =", center);
+    console.log("CENTER =", center);
 
-        let total = 0;
-        let alerts = 0;
+    let total = 0;
+    let alerts = 0;
 
-        Object.entries(ITEMS).forEach(([cat, items]) => {
+    Object.entries(ITEMS).forEach(([cat, items]) => {
 
-            items.forEach(item => {
+        items.forEach(item => {
 
-    try {
+            try {
 
-        const itemName = item.name;
+                const itemName = item.name;
 
-        total++;
+                total++;
 
-        const stock =
-            window.STOCK_CACHE?.[center]?.[itemName]?.qty ?? 0;
+                const stock =
+                    window.STOCK_CACHE?.[center]?.[itemName]?.qty ?? 0;
 
-        const safety = getSafety(center, itemName);
+                const safety = getSafety(center, itemName);
 
-        if (stock <= safety) alerts++;
+                if (stock <= safety) alerts++;
 
-    } catch (e) {
+            } catch (e) {
 
-        console.error("ERROR ITEM =", item);
-        console.error(e);
+                console.error("ERROR ITEM =", item);
+                console.error(e);
 
-    }
+            }
 
         });
 
-        console.log("FINISHED CENTER", center);
-
-        return {
-            center,
-            total,
-            alerts,
-            pct: Math.round(((total - alerts) / total) * 100)
-        };
-
     });
 
-});
+    console.log("FINISHED CENTER", center);
 
+    return {
+        center,
+        total,
+        alerts,
+        pct: total ? Math.round(((total - alerts) / total) * 100) : 0
+    };
+
+});
     console.log("STEP 4");
     console.log(centerData);
 
