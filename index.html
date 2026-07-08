@@ -2002,48 +2002,38 @@ async function loadDashboard() {
     // حساب الإحصائيات
     const centerData = CENTERS.map(center => {
 
-    console.log("CENTER =", center);
+    console.log("ENTER MAP", center);
 
     let total = 0;
     let alerts = 0;
 
     Object.entries(ITEMS).forEach(([cat, items]) => {
-
         items.forEach(item => {
-
             try {
-
                 const itemName = item.name;
-
                 total++;
 
-                const stock =
-                    window.STOCK_CACHE?.[center]?.[itemName]?.qty ?? 0;
-
+                const stock = window.STOCK_CACHE?.[center]?.[itemName]?.qty ?? 0;
                 const safety = getSafety(center, itemName);
 
                 if (stock <= safety) alerts++;
 
             } catch (e) {
-
-                console.error("ERROR ITEM =", item);
                 console.error(e);
-
             }
-
         });
-
     });
 
-    console.log("FINISHED CENTER", center);
-
-    return {
+    const result = {
         center,
         total,
         alerts,
         pct: total ? Math.round(((total - alerts) / total) * 100) : 0
     };
 
+    console.log("RETURN =", result);
+
+    return result;
 });
     console.log("STEP 4");
     console.log(centerData);
