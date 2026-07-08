@@ -2566,11 +2566,14 @@ async function submitRequest() {
     document.getElementById('reqSuccessMsg').textContent = `طلبك لـ ${item} (${qty}) في ${center} وصل للقيادي المناوب`;
     document.getElementById('reqFormSection').style.display = 'none';
     document.getElementById('reqSuccessCard').classList.add('show');
-  } catch(e) {
+  } catch (e) {
+    console.error("REQUEST ERROR:", e);
+    console.error(e.stack);
+
     btn.disabled = false;
     btn.textContent = 'إرسال الطلب';
-    alert('حدث خطأ، حاول مجدداً');
-  }
+
+    alert('حدث خطأ، حاول مجددًا');
 }
 
 function resetRequestForm() {
