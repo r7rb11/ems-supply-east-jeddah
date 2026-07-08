@@ -1866,23 +1866,27 @@ if (selectedMovement === 'سحب' && qty > currentStock) {
 
   try {
     if (SCRIPT_URL) {
-      await apiPost({
-    action: "movement",
-    center: selectedCenter,
-    type: selectedMovement,
-    itemId: selectedItemId,
-    item: selectedItem,
-    category: selectedCategory,
-    qty: qty,
-    empId: empId,
-    empName: empName
-});
+        await apiPost({
+            action: "movement",
+            center: selectedCenter,
+            type: selectedMovement,
+            itemId: selectedItemId,
+            item: selectedItem,
+            category: selectedCategory,
+            qty: qty,
+            empId: empId,
+            empName: empName
+        });
     }
 
-   await Promise.all([
-    loadDashboard(),
-    loadMovementsFromSheet(),
-]);
+    // تحديث المركز الحالي فقط
+    await loadStockFromSheet(selectedCenter);
+
+    // تحديث سجل الحركات
+    await loadMovementsFromSheet();
+
+    // إعادة رسم الداشبورد
+    await loadDashboardUI();
     
     document.getElementById('successMsg').textContent =
       `${selectedMovement === 'إضافة' ? '⬆️ أضفت' : '⬇️ سحبت'} ${qty} من ${selectedItem} في ${selectedCenter}`;
@@ -2022,69 +2026,80 @@ async function loadDashboard() {
     console.log("STEP 2");
     console.log("ITEMS =", Object.keys(ITEMS).length);
 
-    // تحميل مخزون جميع المراكز
+    // تحميل المخزون أول مرة فقط
+if (!window.STOCK_CACHE_LOADED) {
+
     for (const center of CENTERS) {
+
         console.log("Loading center:", center);
+
         await loadStockFromSheet(center);
+
         console.log("Loaded center:", center);
+
     }
+
+    window.STOCK_CACHE_LOADED = true;
+
+}
 
     console.log("STEP 3");
     console.log("CACHE =", window.STOCK_CACHE);
 
-    // حساب الإحصائيات
-    const centerData = CENTERS.map(center => {
-
-    console.log("ENTER MAP", center);
-
-    let total = 0;
-    let alerts = 0;
-
-    Object.entries(ITEMS).forEach(([cat, items]) => {
-        items.forEach(item => {
-            try {
-                const itemName = item.name;
-                total++;
-
-                const stock = window.STOCK_CACHE?.[center]?.[itemName]?.qty ?? 0;
-                const safety = getSafety(center, itemName);
-
-                if (stock <= safety) alerts++;
-
-            } catch (e) {
-                console.error(e);
-            }
-        });
-    });
-
-    const result = {
-        center,
-        total,
-        alerts,
-        pct: total ? Math.round(((total - alerts) / total) * 100) : 0
-    };
-
-    console.log("RETURN =", result);
-
-    return result;
-});
     console.log("STEP 4");
-    console.log(centerData);
 
-    const totalAlerts =
-        centerData.reduce((s, c) => s + c.alerts, 0);
-
-    const totalOk =
-        centerData.reduce((s, c) => s + (c.total - c.alerts), 0);
-
-    const movements =
-        await loadHistoryAPI() || [];
+    await loadMovementsFromSheet();
 
     console.log("STEP 5");
 
-    // اترك باقي كود HTML كما هو بدون أي تعديل
+    await loadDashboardUI();
 
-  el.innerHTML = `
+}
+async function loadDashboardUI() {
+
+    const el = document.getElementById('dashContent');
+
+    const centerData = CENTERS.map(center => {
+
+        let total = 0;
+        let alerts = 0;
+
+        Object.values(ITEMS).forEach(items => {
+
+            items.forEach(item => {
+
+                total++;
+
+                const stock =
+                    window.STOCK_CACHE?.[center]?.[item.name]?.qty ?? 0;
+
+                const safety =
+                    getSafety(center, item.name);
+
+                if (stock <= safety) alerts++;
+
+            });
+
+        });
+
+        return {
+            center,
+            total,
+            alerts,
+            pct: total ? Math.round(((total - alerts) / total) * 100) : 0
+        };
+
+    });
+
+    const totalAlerts =
+        centerData.reduce((s,c)=>s+c.alerts,0);
+
+    const totalOk =
+        centerData.reduce((s,c)=>s+(c.total-c.alerts),0);
+
+    const movements = memMovements || [];
+
+    el.innerHTML = `
     <div class="dash-grid">
       <div class="stat-card">
         <div class="stat-num stat-blue">${CENTERS.length}</div>
@@ -2104,32 +2119,51 @@ async function loadDashboard() {
       </div>
     </div>
 
-    ${totalAlerts > 0 ? `
+    ${totalAlerts>0?`
     <div class="section-title">⚠️ تنبيهات التموين</div>
     ${getAlertItems()}
-    ` : ''}
+    `:''}
 
     <div class="section-title" style="margin-top:16px">🏥 حالة المراكز</div>
-    ${centerData.map(c => `
+
+    ${centerData.map(c=>`
       <div class="center-card" onclick="openDetail('${c.center}')">
+
         <div class="center-card-header">
           <div class="center-name">${CENTER_NAMES[c.center]}</div>
-          <div class="center-badge ${c.alerts > 0 ? 'badge-warn' : 'badge-ok'}">
-            ${c.alerts > 0 ? `⚠️ ${c.alerts} ناقص` : '✅ مكتمل'}
-          </div>
-        </div>
-        <div class="center-bar-bg">
-          <div class="center-bar-fill" style="width:${c.pct}%; background:${c.alerts > 0 ? 'var(--yellow)' : 'var(--green)'}"></div>
-        </div>
-        <div class="center-stats">
-          <span>${c.pct}% مكتمل</span>
-          <span>اضغط للتفاصيل ←</span>
-        </div>
-      </div>
-    `).join('')}
-  `;
-}
 
+          <div class="center-badge ${c.alerts?'badge-warn':'badge-ok'}">
+
+          ${c.alerts?`⚠️ ${c.alerts} ناقص`:'✅ مكتمل'}
+
+          </div>
+
+        </div>
+
+        <div class="center-bar-bg">
+
+          <div class="center-bar-fill"
+
+          style="width:${c.pct}%;background:${c.alerts?'var(--yellow)':'var(--green)'}">
+
+          </div>
+
+        </div>
+
+        <div class="center-stats">
+
+          <span>${c.pct}% مكتمل</span>
+
+          <span>اضغط للتفاصيل ←</span>
+
+        </div>
+
+      </div>
+
+    `).join('')}
+    `;
+}
+  
 function getAlertItems() {
   let html = '';
   CENTERS.forEach(center => {
