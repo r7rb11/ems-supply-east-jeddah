@@ -1233,13 +1233,18 @@ async function apiGet(action, params = {}) {
 
 async function apiPost(data) {
 
-    const response = await fetch(SCRIPT_URL, {
+    console.log("POST BODY:", data);
 
-        method: "POST",
-
-        body: JSON.stringify(data)
-
+    const res = await fetch(SCRIPT_URL,{
+        method:'POST',
+        headers:{
+            'Content-Type':'application/json'
+        },
+        body:JSON.stringify(data)
     });
+
+    return await res.json();
+}
 
     const json = await response.json();
 
