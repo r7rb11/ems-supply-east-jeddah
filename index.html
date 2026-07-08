@@ -2464,9 +2464,24 @@ function updateReqSubmit() {
 }
 
 // مراقبة الحقول لتفعيل الزر
-['reqCenter','reqQty','reqItem','reqFreeText'].forEach(id => {
-  document.addEventListener('input', (e) => { if (e.target.id === id) updateReqSubmit(); });
-  document.addEventListener('change', (e) => { if (e.target.id === id) updateReqSubmit(); });
+['reqCenter','reqQty','reqItem','reqFreeText','reqCategory'].forEach(id => {
+
+    document.addEventListener('input', (e) => {
+        if (e.target.id === id) updateReqSubmit();
+    });
+
+    document.addEventListener('change', (e) => {
+
+        if (e.target.id === 'reqCategory') {
+            onReqCategoryChange();
+        }
+
+        if (e.target.id === id) {
+            updateReqSubmit();
+        }
+
+    });
+
 });
 
 async function submitRequest() {
