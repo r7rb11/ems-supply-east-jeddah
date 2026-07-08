@@ -2419,32 +2419,81 @@ let memRequests = [];
 let selectedReqType = '';
 
 // ----- المسعف: تعبئة الطلب -----
-function selectReqType(type) {
+async function selectReqType(type) {
+
   selectedReqType = type;
+
   document.getElementById('reqTypeList').classList.toggle('selected', type === 'list');
   document.getElementById('reqTypeFree').classList.toggle('selected', type === 'free');
-  document.getElementById('reqListSection').style.display = type === 'list' ? 'block' : 'none';
-  document.getElementById('reqFreeSection').style.display = type === 'free' ? 'block' : 'none';
+
+  document.getElementById('reqListSection').style.display =
+      type === 'list' ? 'block' : 'none';
+
+  document.getElementById('reqFreeSection').style.display =
+      type === 'free' ? 'block' : 'none';
 
   if (type === 'list') {
-    const sel = document.getElementById('reqCategory');
-    sel.innerHTML = '<option value="">— اختر الفئة —</option>';
-    Object.keys(ITEMS).forEach(cat => sel.innerHTML += `<option>${cat}</option>`);
+
+      // إذا الأصناف غير محملة حملها مرة واحدة
+      if (Object.keys(ITEMS).length === 0) {
+          await loadItemsFromSheet();
+      }
+
+      const sel = document.getElementById('reqCategory');
+
+      sel.innerHTML = '';
+
+      const first = document.createElement('option');
+      first.value = '';
+      first.textContent = '— اختر الفئة —';
+      sel.appendChild(first);
+
+      Object.keys(ITEMS).forEach(cat => {
+
+          const op = document.createElement('option');
+          op.value = cat;
+          op.textContent = cat;
+          sel.appendChild(op);
+
+      });
+
   }
+
   updateReqSubmit();
 }
-
+  
 function onReqCategoryChange() {
-  const cat = document.getElementById('reqCategory').value;
-  const sel = document.getElementById('reqItem');
-  sel.innerHTML = '<option value="">— اختر الصنف —</option>';
-  if (cat && ITEMS[cat]) {
-    ITEMS[cat].forEach(item => {
-    sel.innerHTML += `<option>${item.name}</option>`;
-});
-    sel.style.display = 'block';
-  }
-  updateReqSubmit();
+
+    const cat = document.getElementById('reqCategory').value;
+    const sel = document.getElementById('reqItem');
+
+    sel.innerHTML = '';
+
+    const first = document.createElement('option');
+    first.value = '';
+    first.textContent = '— اختر الصنف —';
+    sel.appendChild(first);
+
+    if (cat && ITEMS[cat]) {
+
+        ITEMS[cat].forEach(item => {
+
+            const op = document.createElement('option');
+            op.value = item.name;
+            op.textContent = item.name;
+            sel.appendChild(op);
+
+        });
+
+        sel.style.display = 'block';
+
+    } else {
+
+        sel.style.display = 'none';
+
+    }
+
+    updateReqSubmit();
 }
 
 function updateReqSubmit() {
