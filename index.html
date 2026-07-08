@@ -1932,23 +1932,36 @@ function getSafety(center, item) {
 }
 
 function resetForm() {
-  selectedCenter = ''; selectedMovement = ''; selectedCategory = ''; selectedItem = '';
+  selectedCenter = '';
+  selectedMovement = '';
+  selectedCategory = '';
+  selectedItem = '';
+
   document.getElementById('selCenter').value = '';
   document.getElementById('selCategory').value = '';
   document.getElementById('selItem').style.display = 'none';
+
   document.getElementById('inputQty').value = '';
-  document.getElementById('inputEmpId').value = '';
-  document.getElementById('inputEmpName').value = '';
+
+  // لا تمسح بيانات الموظف
+  // document.getElementById('inputEmpId').value = '';
+  // document.getElementById('inputEmpName').value = '';
+
   document.getElementById('btnAdd').className = 'mov-btn';
   document.getElementById('btnSub').className = 'mov-btn';
-  ['stepBlock2','stepBlock3','stepBlock4'].forEach(id => document.getElementById(id).style.display = 'none');
+
+  ['stepBlock2','stepBlock3','stepBlock4'].forEach(id =>
+    document.getElementById(id).style.display = 'none'
+  );
+
   setStep(1);
+
   document.getElementById('successCard').classList.remove('show');
   document.getElementById('formSection').style.display = 'block';
+
   document.getElementById('btnSubmit').disabled = true;
   document.getElementById('btnSubmit').textContent = 'تأكيد وإرسال';
 }
-
 // ======== DASHBOARD ========
 const CENTER_NAMES = {
   qweiza: 'مركز قويزة',
