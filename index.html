@@ -2535,6 +2535,7 @@ function updateReqSubmit() {
 });
 
 async function submitRequest() {
+
   const btn = document.getElementById('reqBtnSubmit');
   btn.disabled = true;
   btn.textContent = 'جاري الإرسال...';
@@ -2544,41 +2545,79 @@ async function submitRequest() {
   const notes = document.getElementById('reqNotes').value;
   const empId = document.getElementById('reqEmpId').value;
   const empName = currentUser ? currentUser.name : '';
-  const item = selectedReqType === 'list' ? document.getElementById('reqItem').value : document.getElementById('reqFreeText').value;
+
+  const item =
+    selectedReqType === 'list'
+      ? document.getElementById('reqItem').value
+      : document.getElementById('reqFreeText').value;
+
   const now = new Date();
-  const dateStr = `${now.toLocaleDateString('ar-SA')} ${now.toLocaleTimeString('ar-SA')}`;
+
+  const dateStr =
+    `${now.toLocaleDateString('ar-SA')} ${now.toLocaleTimeString('ar-SA')}`;
 
   const reqObj = {
-    date: dateStr, center, empId, empName, item,
-    requestType: selectedReqType === 'list' ? 'من القائمة' : 'طلب حر',
-    qty, notes
-  };
-console.log({
-    action: 'addRequest',
-    request: reqObj
-});
-  try {
-    if (SCRIPT_URL) {
-        await apiPost({
-            action: 'addRequest',
-            request: reqObj
-        });
-    }
-    
-    memRequests.unshift({ id: 'local-' + Date.now(), ...reqObj, status: 'جديد', raisedTime: '', arrivedSectorTime: '', logisticsCode: '', deliveredCenterTime: '', confirmedTime: '', confirmedBy: '' });
 
-    document.getElementById('reqSuccessMsg').textContent = `طلبك لـ ${item} (${qty}) في ${center} وصل للقيادي المناوب`;
+    date: dateStr,
+
+    center,
+
+    empId,
+
+    empName,
+
+    item,
+
+    requestType:
+      selectedReqType === 'list'
+        ? 'من القائمة'
+        : 'طلب حر',
+
+    qty,
+
+    notes
+
+  };
+
+  try {
+
+    let created = null;
+
+    if (SCRIPT_URL) {
+
+      created = await apiPost({
+
+        action: 'addRequest',
+
+        request: reqObj
+
+      });
+
+    }
+
+    // إعادة تحميل الطلبات من Google Sheet
+    memRequests = await loadRequestsAPI();
+
+    document.getElementById('reqSuccessMsg').textContent =
+      `طلبك لـ ${item} (${qty}) في ${center} وصل للقيادي المناوب`;
+
     document.getElementById('reqFormSection').style.display = 'none';
+
     document.getElementById('reqSuccessCard').classList.add('show');
-  } catch (e) {
+
+  }
+
+  catch (e) {
+
     console.error("REQUEST ERROR:", e);
-    console.error(e.stack);
 
     btn.disabled = false;
+
     btn.textContent = 'إرسال الطلب';
 
     alert('حدث خطأ، حاول مجددًا');
-}
+
+  }
 
 }
 
