@@ -1210,7 +1210,8 @@ const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwVFH56S2XBp367NWAUc
   /****************************************************************
  * API CLIENT
  ****************************************************************/
-async function apiGet(action, params = {}) {
+
+  async function apiGet(action, params = {}) {
 
     const url = new URL(SCRIPT_URL);
 
