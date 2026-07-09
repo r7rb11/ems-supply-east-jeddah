@@ -271,7 +271,39 @@
     cursor: pointer;
     margin-top: 12px;
   }
+.modal-overlay{
+display:none;
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.55);
+align-items:center;
+justify-content:center;
+z-index:9999;
+}
 
+.modal-card{
+background:#182233;
+padding:24px;
+border-radius:16px;
+width:360px;
+max-width:90%;
+}
+
+.modal-card input{
+width:100%;
+margin:16px 0;
+padding:12px;
+border-radius:10px;
+}
+
+.modal-actions{
+display:flex;
+gap:10px;
+}
+
+.modal-actions button{
+flex:1;
+}
   /* ===== DASHBOARD ===== */
   .dash-grid {
     display: grid;
@@ -1400,6 +1432,7 @@ let cameraStream = null;
 let capturedImageData = null;
 let scannedResult = null;
 let currentUser = null;
+let pendingRequestId = null;
 
 // ======== LOGIN ========
 function tryLogin() {
@@ -2763,10 +2796,52 @@ async function markDeliveredCenter(id) {
   loadLogisticsScreen();
 }
 
-async function confirmRequest(id) {
-  const now = new Date().toLocaleString('ar-SA');
-  await updateRequestStatus(id, { status: 'مكتمل', confirmedTime: now, confirmedBy: currentUser.code });
-  loadRequestsScreen();
+async function confirmRequest(id){
+
+    openConfirmModal(id);
+
+}
+
+async function confirmReceiveNow(){
+
+    const receiverCode =
+        document.getElementById("receiverCode").value.trim();
+
+    if(receiverCode===""){
+
+        alert("أدخل الكود الوظيفي للمستلم");
+
+        return;
+
+    }
+
+    const now=new Date().toLocaleString("ar-SA");
+
+    await updateRequestStatus(
+
+        pendingRequestId,
+
+        {
+
+            status:"مكتمل",
+
+            confirmedTime:now,
+
+            confirmedBy:receiverCode
+
+        }
+
+    );
+
+    closeConfirmModal();
+
+    loadRequestsScreen();
+
+}
+function closeConfirmModal(){
+
+    document.getElementById("confirmModal").style.display="none";
+
 }
 
 // ----- اللوجستي: شاشة التنبيهات -----
@@ -2795,5 +2870,35 @@ async function loadLogisticsScreen() {
 }
 </script>
 </div><!-- end appWrapper -->
+<div id="confirmModal" class="modal-overlay">
+
+  <div class="modal-card">
+
+    <h3>تأكيد الاستلام</h3>
+
+    <p>أدخل الكود الوظيفي للمستلم</p>
+
+    <input
+      id="receiverCode"
+      type="text"
+      placeholder="الكود الوظيفي">
+
+    <div class="modal-actions">
+
+      <button class="btn-secondary"
+              onclick="closeConfirmModal()">
+        إلغاء
+      </button>
+
+      <button class="btn-primary"
+              onclick="confirmReceiveNow()">
+        تأكيد الاستلام
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
 </body>
 </html>
