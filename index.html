@@ -2688,15 +2688,18 @@ async function loadRequestsScreen() {
   const el = document.getElementById('requestsContent');
   el.innerHTML = '<div class="loading"><div class="spinner"></div>جاري تحميل الطلبات...</div>';
   const fetched = await fetchRequests();
-  memRequests = fetched.length ? fetched : memRequests;
+memRequests = fetched.length ? fetched : memRequests;
 
-  if (memRequests.length === 0) {
-    el.innerHTML = `<div class="loading" style="color:var(--text2)">📥 لا توجد طلبات حالياً</div>`;
-    return;
-  }
+const activeRequests = memRequests.filter(r => r.status !== "مكتمل");
 
-  el.innerHTML = `<div class="section-title">📥 طلبات التموين (${memRequests.length})</div>` +
-    memRequests.map(r => renderRequestCard(r, 'leader')).join('');
+if (activeRequests.length === 0) {
+  el.innerHTML = `<div class="loading" style="color:var(--text2)">📥 لا توجد طلبات حالياً</div>`;
+  return;
+}
+
+el.innerHTML =
+  `<div class="section-title">📥 طلبات التموين (${activeRequests.length})</div>` +
+  activeRequests.map(r => renderRequestCard(r, 'leader')).join('');
 }
 
 function statusClass(status) {
@@ -2858,10 +2861,10 @@ async function loadLogisticsScreen() {
   el.innerHTML = '<div class="loading"><div class="spinner"></div>جاري تحميل التنبيهات...</div>';
   const fetched = await fetchRequests();
   memRequests = fetched.length ? fetched : memRequests;
+  const activeRequests = memRequests.filter(r => r.status !== "مكتمل");
 
-  const pending = memRequests.filter(r => r.status === 'وصل للقطاع');
-  const delivered = memRequests.filter(r => r.status === 'تم التوصيل للمركز' || r.status === 'مكتمل');
-
+const pending = activeRequests.filter(r => r.status === 'وصل للقطاع');
+const delivered = activeRequests.filter(r => r.status === 'تم التوصيل للمركز');
   let html = `<div class="section-title">🚚 تنبيهات بانتظار التوصيل (${pending.length})</div>`;
   if (pending.length === 0) {
     html += `<div class="loading" style="color:var(--text2);padding:20px">لا يوجد تموين بانتظار التوصيل حالياً</div>`;
