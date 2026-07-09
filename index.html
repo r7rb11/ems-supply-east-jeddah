@@ -1210,7 +1210,6 @@ const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwVFH56S2XBp367NWAUc
   /****************************************************************
  * API CLIENT
  ****************************************************************/
-
 async function apiGet(action, params = {}) {
 
     const url = new URL(SCRIPT_URL);
@@ -1247,7 +1246,11 @@ async function apiPost(data) {
 
     return json.data;
 }
+async function loadItemsAPI() {
 
+    return await apiGet("items");
+
+}
 async function loadStockAPI(centerId) {
 
     console.log("loadStockAPI center =", centerId);
@@ -1729,6 +1732,7 @@ async function loadItemsFromSheet() {
     console.log("API DATA =", data);
 
     ITEMS = data;
+
     console.log("ITEMS loaded:", Object.keys(ITEMS).length);
 
     console.log("ITEMS AFTER =", ITEMS);
@@ -1738,6 +1742,8 @@ async function loadItemsFromSheet() {
   } catch(err) {
 
     console.error("LOAD ITEMS ERROR =", err);
+    console.error(err.message);
+    console.error(err.stack);
 
     alert("تعذر تحميل الأصناف");
 
