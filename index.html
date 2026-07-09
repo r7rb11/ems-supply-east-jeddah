@@ -2801,7 +2801,15 @@ async function confirmRequest(id){
     openConfirmModal(id);
 
 }
+function openConfirmModal(id){
 
+    pendingRequestId = id;
+
+    document.getElementById("receiverCode").value = "";
+
+    document.getElementById("confirmModal").style.display = "flex";
+
+}
 async function confirmReceiveNow(){
 
     const receiverCode =
