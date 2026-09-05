@@ -919,11 +919,23 @@ flex:1;
   <div class="login-sub">قطاع شرق جدة — ٥ مراكز</div>
   <div class="login-card">
     <label class="login-label">أدخل كودك الوظيفي</label>
-    <input class="login-input" id="loginCode" type="number" placeholder="• • • • •" 
+    <input class="login-input" id="loginCode" type="number" placeholder="• • • • •"
       onkeydown="if(event.key==='Enter') tryLogin()" autocomplete="off" inputmode="numeric">
+
+    <div id="pinBlock" style="display:none">
+      <label class="login-label" id="pinLabel">أدخل رقمك السري</label>
+      <input class="login-input" id="loginPin" type="password" placeholder="• • • •"
+        onkeydown="if(event.key==='Enter') tryLogin()" autocomplete="off" inputmode="numeric">
+      <div id="pinConfirmBlock" style="display:none">
+        <label class="login-label">أكّد الرقم السري</label>
+        <input class="login-input" id="loginPinConfirm" type="password" placeholder="• • • •"
+          onkeydown="if(event.key==='Enter') tryLogin()" autocomplete="off" inputmode="numeric">
+      </div>
+    </div>
+
     <div class="login-error" id="loginError"></div>
-    <button class="login-btn" onclick="tryLogin()">دخول</button>
-    <div class="login-hint">🔒 البيانات محمية ولا يمكن الوصول إليها بدون كود</div>
+    <button class="login-btn" id="loginBtn" onclick="tryLogin()">دخول</button>
+    <div class="login-hint">🔒 كل موظف له رقمه السري الخاص — لا يشترك فيه أحد آخر</div>
   </div>
 </div>
 
@@ -951,6 +963,9 @@ flex:1;
   </div>
   <div class="tab" id="tabRequest" onclick="showTab('request')">
     <span class="tab-icon">🆘</span>طلب تموين
+  </div>
+  <div class="tab" id="tabInventory" onclick="showTab('inventory')">
+    <span class="tab-icon">📝</span>الجرد
   </div>
   <div class="tab" id="tabRequests" onclick="showTab('requests')">
     <span class="tab-icon">📥</span>الطلبات
@@ -1061,6 +1076,56 @@ flex:1;
 
       <button class="btn-submit" id="btnSubmit" disabled onclick="submitMovement()" type="button">
         تأكيد وإرسال
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ INVENTORY COUNT SCREEN (الجرد) ============ -->
+<div id="screen-inventory" class="screen">
+
+  <div class="success-card" id="invSuccessCard">
+    <div class="success-icon">✅</div>
+    <h3>تم تسجيل الجرد بنجاح</h3>
+    <p>تم تحديث رصيد الصنف بالمركز</p>
+    <button class="btn-new" onclick="resetInventoryForm()">جرد صنف آخر</button>
+  </div>
+
+  <div id="invFormSection">
+    <div class="form-card">
+      <h2>📝 جرد صنف (Blind Count)</h2>
+
+      <label>١. اختر المركز</label>
+      <select id="invSelCenter" onchange="onInvCenterChange()">
+        <option value="">— اختر المركز —</option>
+        <option value="qweiza">مركز قويزة</option>
+        <option value="kilo7">مركز كيلو سبعة</option>
+        <option value="rahili">مركز الرحيلي</option>
+        <option value="naseem">مركز النسيم</option>
+        <option value="harazat">مركز الحرازات</option>
+      </select>
+
+      <label>٢. اختر الصنف</label>
+      <select id="invSelCategory" onchange="onInvCategoryChange()">
+        <option value="">— اختر الفئة —</option>
+      </select>
+      <select id="invSelItem" style="display:none" onchange="onInvItemChange()">
+        <option value="">— اختر الصنف —</option>
+      </select>
+
+      <div id="invQtyBlock" style="display:none">
+        <label>٣. الكمية اللي عددتها فعليًا</label>
+        <input type="number" id="invQty" min="0" placeholder="أدخل العدد الفعلي" oninput="updateInvSubmit()">
+
+        <label>تاريخ الانتهاء (اختياري)</label>
+        <input type="date" id="invExpiry" style="font-family: inherit; padding:12px 14px; width:100%; background: var(--surface2); border:1px solid var(--border); border-radius:10px; color:var(--text); margin-bottom:14px; outline:none; direction:ltr">
+
+        <label>ملاحظات (اختياري)</label>
+        <input type="text" id="invNotes" placeholder="أي ملاحظة على الصنف..." style="font-family: inherit; padding:12px 14px; width:100%; background: var(--surface2); border:1px solid var(--border); border-radius:10px; color:var(--text); margin-bottom:14px; outline:none; direction:rtl">
+      </div>
+
+      <button class="btn-submit" id="invBtnSubmit" disabled onclick="submitInventory()" type="button">
+        تأكيد الجرد
       </button>
     </div>
   </div>
@@ -1237,8 +1302,8 @@ flex:1;
 
 <script>
 // ======== CONFIG ========
-const SHEET_ID = '1M09LZe5AigIgR7SFThowX8UQSOA05py3zDE_3bZV7w4';
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwVFH56S2XBp367NWAUc-93W4m1SjGPkOyX_eDW-1G-yymblf9_dCz8DPAMRNozVcDR/exec';
+const SHEET_ID = '1p1aRD8CcRhStmzuSKufskzeqJQE_71P-__du-u7LVyQ'; // ✅ نسخة الإنتاج
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzF0eECoE8RMtr1APIBTIaf1FVeKB5NvyskslgmdvGIxiTwoJ_AvGPkE8C5BpT_MxGRCQ/exec'; // ✅ نسخة الإنتاج — يفتح 1p1aRD8CcRhStmzuSKufskzeqJQE_71P-__du-u7LVyQ
   /****************************************************************
  * API CLIENT
  ****************************************************************/
@@ -1313,110 +1378,15 @@ async function loadHistoryAPI() {
     return await apiGet("history");
 
 }
-const PIN = '1234'; // ← غيّر هذا الرمز
 
-// ======== EMPLOYEES DATABASE ========
-const EMPLOYEES = {
-  // ===== أنت - كل الصلاحيات =====
-  '61602': { name: 'ريان خلف محمد الحربي', role: 'admin' },
+async function loadInventoryLogAPI() {
 
-  // ===== القياديون =====
-  '10760': { name: 'عبدالرحمن عابد قاسي العيلي', role: 'leader' },
-  '2727':  { name: 'احمد حسين محمد نافع', role: 'leader' },
-  '10406': { name: 'رامي عايض طلق الصادري السلمي', role: 'leader' },
-  '2268':  { name: 'سعود قاسم عايض القرني', role: 'leader' },
-  '9714':  { name: 'بندر جباره جابر العروي', role: 'leader' },
-  '6031':  { name: 'مشاري احمد السهيمي', role: 'leader' },
+    return await apiGet("inventorylog");
 
-  // ===== الدعم اللوجستي =====
-  '9768':   { name: 'زامل فائز احمد الشمراني', role: 'logistics' },
-  '100170': { name: 'عمر عيد سالم الصاعدي', role: 'logistics' },
-  '101548': { name: 'فواز محمد العاقل كزيم', role: 'logistics' },
-  '102079': { name: 'بدر بن سعيد بن مبارك بن مبارك الزهراني', role: 'logistics' },
-
-  // ===== المسعفون =====
-  '10988': { name: 'اسماعيل سعيد محمد شبيلي', role: 'paramedic' },
-  '61592': { name: 'عبدالله عبده محمد فقيهي', role: 'paramedic' },
-  '10562': { name: 'ابراهيم راشد علي زهراء الخميسي', role: 'paramedic' },
-  '11089': { name: 'ابراهيم شيهان مرزن العتيبي', role: 'paramedic' },
-  '5956':  { name: 'حسام محمد حنيف الدغيلبي العتيبي', role: 'paramedic' },
-  '9682':  { name: 'ياسر سعيد سعد الجحدلي', role: 'paramedic' },
-  '7604':  { name: 'صابر عبيد صابر العتيبي', role: 'paramedic' },
-  '9769':  { name: 'حسن موسى حسن ال جمعه الاسمري', role: 'paramedic' },
-  '61488': { name: 'أحمد إسماعيل بديوي الرويلي', role: 'paramedic' },
-  '8595':  { name: 'عماد علي سيف السلمي', role: 'paramedic' },
-  '9776':  { name: 'خالد احمد علي الغبيشي الزهراني', role: 'paramedic' },
-  '11345': { name: 'عبدالرحمن صالح عبده الحربي', role: 'paramedic' },
-  '3945':  { name: 'زاهر احمد مسفر الغامدي', role: 'paramedic' },
-  '61191': { name: 'ابراهيم حمد علي ال دويس', role: 'paramedic' },
-  '10156': { name: 'ضاحي ثابت عبدالمحسن السليمي الحربي', role: 'paramedic' },
-  '11390': { name: 'عبدالله حسن محمد المالكي', role: 'paramedic' },
-  '61485': { name: 'حاتم صالح عايض المالكي', role: 'paramedic' },
-  '61598': { name: 'عبدالعزيز عبدالله خلوفه مدخلي', role: 'paramedic' },
-  '9691':  { name: 'حامد حمزه حامد الحربي', role: 'paramedic' },
-  '9708':  { name: 'يحي بدر احمد العبيدي', role: 'paramedic' },
-  '7747':  { name: 'ابراهيم محمد طارق محمد الهوساوي', role: 'paramedic' },
-  '9778':  { name: 'حسين علي احمد السبعي', role: 'paramedic' },
-  '61162': { name: 'عبدالله سعد علي القرني', role: 'paramedic' },
-  '61648': { name: 'عمر مناجي علي نافع', role: 'paramedic' },
-  '6363':  { name: 'مصلح فارع سبهان البلادي', role: 'paramedic' },
-  '61483': { name: 'هاجر محمد إبراهيم الحبودل', role: 'paramedic' },
-  '5210':  { name: 'عبدالعزيز عبدالله حامد ابوفيه الغامدي', role: 'paramedic' },
-  '11384': { name: 'عبدالله عبدالمغني عبدالغني الشيخ', role: 'paramedic' },
-  '10314': { name: 'حسام مصطفى احمد مساوى', role: 'paramedic' },
-  '10912': { name: 'عطية يحي عطية الزهراني', role: 'paramedic' },
-  '61475': { name: 'مشاري حسن خميس الزهراني', role: 'paramedic' },
-  '61616': { name: 'باسل عابد عبيد الزهراني', role: 'paramedic' },
-  '10928': { name: 'احمد ابراهيم مفتاح عقيلي', role: 'paramedic' },
-  '11374': { name: 'عبدالرحمن خالد سليمان العنتر', role: 'paramedic' },
-  '4504':  { name: 'متعب مرزوق نافع البلادي الحربي', role: 'paramedic' },
-  '8202':  { name: 'محمد علي عبداله ال هدبان المنتشري', role: 'paramedic' },
-  '61478': { name: 'راغب عبد رب الرسول أمان القبعه', role: 'paramedic' },
-  '61619': { name: 'مازن فهد عبدالرحمن المطيري', role: 'paramedic' },
-  '9711':  { name: 'سعيد عبداله سعيد المضحوي الزهراني', role: 'paramedic' },
-  '10071': { name: 'محمد عابد عبيدان الحساني', role: 'paramedic' },
-  '11382': { name: 'هادي عباس أحمد زامكه', role: 'paramedic' },
-  '8938':  { name: 'منصور عبد الغني عبداله الزهراني', role: 'paramedic' },
-  '61590': { name: 'عدي خالد جميل بوقري', role: 'admin' },
-  '10595': { name: 'مؤيد ابراهيم عمر الاهدل', role: 'paramedic' },
-  '61389': { name: 'خالد فؤاد خالد قدس', role: 'paramedic' },
-  '736':   { name: 'سعيد بن علي بن حامد آل مسمار الكثيري', role: 'paramedic' },
-  '4254':  { name: 'سعيد محمد احمد الغامدي', role: 'paramedic' },
-  '61607': { name: 'عبداله محمد أحمد العمودي', role: 'paramedic' },
-  '10621': { name: 'ريان احمد حسن ال ثواب القرني', role: 'paramedic' },
-  '4115':  { name: 'نايف علي بشامة السلمي', role: 'paramedic' },
-  '6659':  { name: 'بندر عبداله سعيد الزهراني', role: 'paramedic' },
-  '9864':  { name: 'حسن محمد علي عسيري', role: 'paramedic' },
-  '11385': { name: 'علي محمد علي الشهري', role: 'paramedic' },
-  '61464': { name: 'سميه سعيد موسى الزهراني', role: 'paramedic' },
-  '9775':  { name: 'جبريل زين جبريل الزبيدي', role: 'paramedic' },
-  '9824':  { name: 'علي احمد سعيد الفهمي الزهراني', role: 'paramedic' },
-  '11375': { name: 'فارس فوزي أحمد شحات', role: 'paramedic' },
-  '9644':  { name: 'عماد عبداله مستور اللحياني', role: 'paramedic' },
-  '9681':  { name: 'فؤاد حمدان حمدي الفارسي', role: 'paramedic' },
-  '61582': { name: 'سليمان عبداله سعدي عبداله', role: 'paramedic' },
-  '61600': { name: 'محمد أحمد محمد المحيميد', role: 'paramedic' },
-  '723':   { name: 'مساعد احمد يحيى الشمراني', role: 'paramedic' },
-  '6360':  { name: 'سعد احمد سعد الغامدي', role: 'paramedic' },
-  '7488':  { name: 'سعيد عبدالخالق سعيد الغامدي', role: 'paramedic' },
-  '61312': { name: 'فهد حسن محمد باعبدالله', role: 'paramedic' },
-  '1087':  { name: 'عبدالرحمن جميل جميل الفزي الجهني', role: 'paramedic' },
-  '9773':  { name: 'عدنان عبداله سمار البلادي', role: 'paramedic' },
-  '4117':  { name: 'فهد علي راشد الغامدي', role: 'paramedic' },
-  '9774':  { name: 'عبداله منتهى حسن المعشي', role: 'paramedic' },
-  '8929':  { name: 'عبدالأله محمد حسن الجراري', role: 'paramedic' },
-  '61618': { name: 'أحمد عبدالعزيز محمد الخريمي', role: 'paramedic' },
-  '61641': { name: 'رضا عبدالهادي عبدالواحد الحيدر', role: 'paramedic' },
-  '61643': { name: 'حسن فايز حسن آل عوجان', role: 'paramedic' },
-  '6033':  { name: 'عبدالحي مشرف طامي المعلوي', role: 'paramedic' },
-  '102588':{ name: 'محمد احمد عميش', role: 'paramedic' },
-  '5213':  { name: 'ياسر طلال رجاء السهلي الحربي', role: 'paramedic' },
-  '101194':{ name: 'عمر سمران محمد المرامحي', role: 'paramedic' },
-  '102640':{ name: 'ممدوح محمد ناجي علي', role: 'paramedic' },
-  '102775':{ name: 'عبداله نائف غزاي المقاطي', role: 'paramedic' },
-  '6608':  { name: 'عبدالعزيز احمد محمد الغامدي', role: 'paramedic' },
-  '102079':{ name: 'بدر بن سعيد بن مبارك الزهراني', role: 'paramedic' },
-};
+}
+// ======== EMPLOYEES ========
+// أمني: ما فيه أي بيانات موظفين أو رقم سري مكتوب هنا إطلاقًا.
+// كل شي يتحقق منه ويُقرأ من تبويب "المسعفين" و"الصلاحيات" بالشيت مباشرة عبر Apps Script.
 
 // ======== ITEMS BY CATEGORY ========
 let ITEMS = {};
@@ -1434,32 +1404,80 @@ let scannedResult = null;
 let currentUser = null;
 let pendingRequestId = null;
 
-// ======== LOGIN ========
-function tryLogin() {
+// ======== LOGIN (آمن - عبر السيرفر) ========
+let loginStage = 'code'; // 'code' | 'pin' | 'newpin'
+
+async function tryLogin() {
   const code = document.getElementById('loginCode').value.trim();
-  const emp = EMPLOYEES[code];
+  const pin = document.getElementById('loginPin').value.trim();
+  const pinConfirm = document.getElementById('loginPinConfirm').value.trim();
   const errEl = document.getElementById('loginError');
-  if (!emp) {
+  const btn = document.getElementById('loginBtn');
+  errEl.style.display = 'none';
+
+  if (!code) {
     errEl.style.display = 'block';
-    errEl.textContent = '❌ الكود غير صحيح، تحقق وأعد المحاولة';
-    document.getElementById('loginCode').value = '';
+    errEl.textContent = '❌ أدخل الكود الوظيفي';
     return;
   }
-  currentUser = { code, ...emp };
-  document.getElementById('loginScreen').style.display = 'none';
-  document.getElementById('appWrapper').style.display = 'block';
-  applyRoleUI();
+
+  if (loginStage === 'newpin') {
+    if (!pin || pin.length < 4) {
+      errEl.style.display = 'block';
+      errEl.textContent = '❌ الرقم السري لازم يكون 4 أرقام على الأقل';
+      return;
+    }
+    if (pin !== pinConfirm) {
+      errEl.style.display = 'block';
+      errEl.textContent = '❌ الرقمين غير متطابقين';
+      return;
+    }
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'جاري التحقق...';
+
+  try {
+    const data = await apiPost({ action: 'login', code: code, pin: pin });
+    currentUser = data; // { code, name, title, permissions }
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('appWrapper').style.display = 'block';
+    applyRoleUI();
+  } catch (e) {
+    const msg = String(e.message || e);
+    if (msg.includes('NEW_PIN_REQUIRED')) {
+      loginStage = 'newpin';
+      document.getElementById('pinBlock').style.display = 'block';
+      document.getElementById('pinConfirmBlock').style.display = 'block';
+      document.getElementById('pinLabel').textContent = 'أول مرة تدخل؟ اختر رقمك السري الخاص (4 أرقام فأكثر)';
+      errEl.style.display = 'block';
+      errEl.textContent = 'ℹ️ ما فيه رقم سري مسجل لك — أنشئ رقمك الخاص الآن';
+    } else if (msg.includes('PIN_REQUIRED')) {
+      loginStage = 'pin';
+      document.getElementById('pinBlock').style.display = 'block';
+      document.getElementById('pinConfirmBlock').style.display = 'none';
+      document.getElementById('pinLabel').textContent = 'أدخل رقمك السري';
+      errEl.style.display = 'block';
+      errEl.textContent = 'أدخل رقمك السري للمتابعة';
+    } else {
+      errEl.style.display = 'block';
+      errEl.textContent = '❌ ' + msg;
+    }
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'دخول';
 }
 
 function applyRoleUI() {
-  const role = currentUser.role;
+  const perms = currentUser.permissions || {};
+  const title = currentUser.title || '';
+
   document.getElementById('userNameBadge').textContent = currentUser.name.split(' ').slice(0,2).join(' ');
-  document.getElementById('userRoleBadge').textContent =
-    role === 'admin' ? '⭐ مدير النظام' :
-    role === 'leader' ? '🎖️ قيادي مناوب' :
-    role === 'logistics' ? '🚚 دعم لوجستي' : '🚑 مسعف';
+  document.getElementById('userRoleBadge').textContent = title || '—';
 
   const tabMovement = document.querySelector('.tab[onclick*="movement"]');
+  const tabInventory = document.getElementById('tabInventory');
   const tabRequest = document.getElementById('tabRequest');
   const tabRequests = document.getElementById('tabRequests');
   const tabLogistics = document.getElementById('tabLogistics');
@@ -1468,26 +1486,17 @@ function applyRoleUI() {
   const tabAnalytics = document.getElementById('tabAnalytics');
 
   // اخفاء الكل أولاً
-  [tabMovement, tabRequest, tabRequests, tabLogistics, tabDash, tabHistory, tabAnalytics].forEach(t => { if (t) t.style.display = 'none'; });
+  [tabMovement, tabInventory, tabRequest, tabRequests, tabLogistics, tabDash, tabHistory, tabAnalytics]
+    .forEach(t => { if (t) t.style.display = 'none'; });
 
-  if (role === 'paramedic') {
-    tabMovement.style.display = 'flex';
-    tabRequest.style.display = 'flex';
-  } else if (role === 'leader') {
-    tabMovement.style.display = 'flex';
-    tabRequest.style.display = 'flex';
-    tabRequests.style.display = 'flex';
-    tabDash.style.display = 'flex';
-    tabHistory.style.display = 'flex';
-  } else if (role === 'logistics') {
-    tabLogistics.style.display = 'flex';
-    showTabDirect('logistics');
-  } else {
-    // admin
-    tabMovement.style.display = 'flex';
-    tabRequest.style.display = 'flex';
-    tabRequests.style.display = 'flex';
-    tabLogistics.style.display = 'flex';
+  const isLogistics = title === 'دعم لوجيستي';
+
+  if (perms['سحب/إضافة']) tabMovement.style.display = 'flex';
+  if (perms['الجرد']) tabInventory.style.display = 'flex';
+  if (perms['إنشاء طلب تموين'] && !isLogistics) tabRequest.style.display = 'flex';
+  if (perms['تحديث حالةالتموين'] && !isLogistics) tabRequests.style.display = 'flex';
+  if (isLogistics && perms['تحديث حالةالتموين']) tabLogistics.style.display = 'flex';
+  if (perms['إدارة المسعفين']) {
     tabDash.style.display = 'flex';
     tabHistory.style.display = 'flex';
     tabAnalytics.style.display = 'flex';
@@ -1497,8 +1506,8 @@ function applyRoleUI() {
   document.getElementById('inputEmpName').value = currentUser.name;
   document.getElementById('reqEmpId').value = currentUser.code;
 
-  // إذا لوجستي، يفتح مباشرة على شاشته
-  if (role === 'logistics') {
+  // إذا دعم لوجيستي، يفتح مباشرة على شاشته
+  if (isLogistics) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('screen-logistics').classList.add('active');
     loadLogisticsScreen();
@@ -1512,9 +1521,14 @@ function showTabDirect(tabId) {
 
 function logout() {
   currentUser = null;
+  loginStage = 'code';
   document.getElementById('loginScreen').style.display = 'flex';
   document.getElementById('appWrapper').style.display = 'none';
   document.getElementById('loginCode').value = '';
+  document.getElementById('loginPin').value = '';
+  document.getElementById('loginPinConfirm').value = '';
+  document.getElementById('pinBlock').style.display = 'none';
+  document.getElementById('pinConfirmBlock').style.display = 'none';
   document.getElementById('loginError').style.display = 'none';
   resetForm();
 }
@@ -1772,6 +1786,7 @@ async function loadItemsFromSheet() {
     console.log("ITEMS AFTER =", ITEMS);
 
     populateCategories();
+    if (document.getElementById('invSelCategory')) populateInvCategories();
 
   } catch(err) {
 
@@ -1851,6 +1866,125 @@ function updateSubmit() {
   const empId = document.getElementById('inputEmpId').value.trim();
   const ok = selectedCenter && selectedMovement && selectedItem && qty > 0 && empId !== '';
   document.getElementById('btnSubmit').disabled = !ok;
+}
+
+// ======== INVENTORY COUNT (الجرد - Blind Count) ========
+let invCenter = '', invCategory = '', invItem = '', invItemId = '';
+
+async function onInvCenterChange() {
+  invCenter = document.getElementById('invSelCenter').value;
+  invCategory = ''; invItem = ''; invItemId = '';
+  document.getElementById('invSelItem').style.display = 'none';
+  document.getElementById('invQtyBlock').style.display = 'none';
+  document.getElementById('invQty').value = '';
+  document.getElementById('invNotes').value = '';
+  document.getElementById('invExpiry').value = '';
+  updateInvSubmit();
+
+  if (invCenter) {
+    if (!ITEMS || Object.keys(ITEMS).length === 0) {
+      await loadItemsFromSheet();
+    } else {
+      populateInvCategories();
+    }
+  }
+}
+
+function populateInvCategories() {
+  const sel = document.getElementById('invSelCategory');
+  sel.innerHTML = '<option value="">— اختر الفئة —</option>';
+  Object.keys(ITEMS).sort().forEach(cat => {
+    sel.innerHTML += `<option>${cat}</option>`;
+  });
+}
+
+function onInvCategoryChange() {
+  invCategory = document.getElementById('invSelCategory').value;
+  invItem = ''; invItemId = '';
+  const sel = document.getElementById('invSelItem');
+  sel.innerHTML = '<option value="">— اختر الصنف —</option>';
+
+  if (invCategory && ITEMS[invCategory]) {
+    ITEMS[invCategory].forEach(item => {
+      sel.innerHTML += `<option value="${item.id}">${item.name}</option>`;
+    });
+    sel.style.display = 'block';
+  }
+  document.getElementById('invQtyBlock').style.display = 'none';
+  updateInvSubmit();
+}
+
+function onInvItemChange() {
+  invItemId = document.getElementById('invSelItem').value;
+  const item = (ITEMS[invCategory] || []).find(i => i.id == invItemId);
+  invItem = item ? item.name : '';
+
+  // ===== جرد أعمى: ما نعرض الرصيد المسجل حاليًا إطلاقًا =====
+  if (invItem) {
+    document.getElementById('invQtyBlock').style.display = 'block';
+  }
+  updateInvSubmit();
+}
+
+function updateInvSubmit() {
+  const qty = document.getElementById('invQty').value;
+  const ok = invCenter && invItem && qty !== '' && Number(qty) >= 0;
+  document.getElementById('invBtnSubmit').disabled = !ok;
+}
+
+async function submitInventory() {
+  const btn = document.getElementById('invBtnSubmit');
+  btn.disabled = true;
+  btn.textContent = 'جاري الإرسال...';
+
+  const qty = Number(document.getElementById('invQty').value);
+  const notes = document.getElementById('invNotes').value || '';
+  const expiry = document.getElementById('invExpiry').value || '';
+
+  try {
+    await apiPost({
+      action: 'inventory',
+      center: invCenter,
+      itemId: invItemId,
+      item: invItem,
+      category: invCategory,
+      qty: qty,
+      notes: notes,
+      expiry: expiry,
+      empId: currentUser.code,
+      empName: currentUser.name
+    });
+
+    // تحديث الكاش المحلي فورًا عشان الداشبورد وكل الشاشات تعكس الرقم الجديد بدون ما تحتاج تفتح المركز يدويًا
+    await loadStockFromSheet(invCenter);
+    await loadMovementsFromSheet();
+    window.STOCK_CACHE_LOADED = false; // يجبر لوحة التحكم تحدّث كل المراكز بالمرة الجاية اللي تُفتح فيها
+    await loadDashboardUI();
+
+    document.getElementById('invFormSection').style.display = 'none';
+    document.getElementById('invSuccessCard').classList.add('show');
+  } catch (e) {
+    alert('❌ حدث خطأ: ' + (e.message || e));
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'تأكيد الجرد';
+}
+
+function resetInventoryForm() {
+  invCenter = ''; invCategory = ''; invItem = ''; invItemId = '';
+  document.getElementById('invSelCenter').value = '';
+  document.getElementById('invSelCategory').innerHTML = '<option value="">— اختر الفئة —</option>';
+  document.getElementById('invSelItem').innerHTML = '<option value="">— اختر الصنف —</option>';
+  document.getElementById('invSelItem').style.display = 'none';
+  document.getElementById('invQtyBlock').style.display = 'none';
+  document.getElementById('invQty').value = '';
+  document.getElementById('invNotes').value = '';
+  document.getElementById('invExpiry').value = '';
+  document.getElementById('invBtnSubmit').disabled = true;
+
+  document.getElementById('invSuccessCard').classList.remove('show');
+  document.getElementById('invFormSection').style.display = 'block';
 }
 
 function setStep(n) {
@@ -1957,6 +2091,10 @@ data.forEach(row => {
     window.STOCK_CACHE[center][row.item] = {
         qty: row.qty,
         safety: row.safety,
+        reorderPoint: row.reorderPoint,
+        expiry: row.expiry,
+        notes: row.notes,
+        level: row.level,
         category: row.category,
         id: row.id
     };
@@ -1972,7 +2110,21 @@ async function loadMovementsFromSheet() {
 
     try {
 
-        memMovements = await loadHistoryAPI();
+        const [movements, inventoryLog] = await Promise.all([
+            loadHistoryAPI(),
+            loadInventoryLogAPI().catch(() => [])
+        ]);
+
+        const merged = [...(movements || []), ...(inventoryLog || [])];
+
+        // ترتيب الكل حسب التاريخ (الأحدث أولاً)
+        merged.sort((a, b) => {
+            const da = new Date(a.date).getTime() || 0;
+            const db = new Date(b.date).getTime() || 0;
+            return db - da;
+        });
+
+        memMovements = merged;
 
     }
 
@@ -2097,6 +2249,8 @@ async function loadDashboardUI() {
 
         let total = 0;
         let alerts = 0;
+        let critical = 0;
+        let warn = 0;
 
         Object.values(ITEMS).forEach(items => {
 
@@ -2104,23 +2258,29 @@ async function loadDashboardUI() {
 
                 total++;
 
-                const stock =
-                    window.STOCK_CACHE?.[center]?.[item.name]?.qty ?? 0;
+                const cacheItem =
+                    window.STOCK_CACHE?.[center]?.[item.name];
 
-                const safety =
-                    getSafety(center, item.name);
+                const level = cacheItem?.level || 'ok';
 
-                if (stock <= safety) alerts++;
+                if (level === 'critical') { critical++; alerts++; }
+                else if (level === 'warn') { warn++; alerts++; }
 
             });
 
         });
 
+        let pct = total ? ((total - alerts) / total) * 100 : 100;
+        // منع ظهور 100% وهمية بسبب التقريب لو فيه أي نقص فعلي (ولو صنف واحد)
+        pct = alerts > 0 ? Math.min(99, Math.floor(pct)) : 100;
+
         return {
             center,
             total,
             alerts,
-            pct: total ? Math.round(((total - alerts) / total) * 100) : 0
+            critical,
+            warn,
+            pct
         };
 
     });
@@ -2166,9 +2326,9 @@ async function loadDashboardUI() {
         <div class="center-card-header">
           <div class="center-name">${CENTER_NAMES[c.center]}</div>
 
-          <div class="center-badge ${c.alerts?'badge-warn':'badge-ok'}">
+          <div class="center-badge ${c.critical?'badge-warn':(c.warn?'badge-warn':'badge-ok')}">
 
-          ${c.alerts?`⚠️ ${c.alerts} ناقص`:'✅ مكتمل'}
+          ${c.critical?`🔴 ${c.critical} حرج`:(c.warn?`⚠️ ${c.warn} ناقص`:'✅ مكتمل')}
 
           </div>
 
@@ -2178,7 +2338,7 @@ async function loadDashboardUI() {
 
           <div class="center-bar-fill"
 
-          style="width:${c.pct}%;background:${c.alerts?'var(--yellow)':'var(--green)'}">
+          style="width:${c.pct}%;background:${c.critical?'var(--red)':(c.warn?'var(--yellow)':'var(--green)')}">
 
           </div>
 
@@ -2205,18 +2365,16 @@ function getAlertItems() {
       items.forEach(item => {
 
     const itemName = item.name;
-    console.log("CENTER =", center);
-    console.log("ITEM =", itemName);
-    console.log(window.STOCK_CACHE?.[center]?.[itemName]);
-    const stock = window.STOCK_CACHE?.[center]?.[itemName]?.qty ?? 0;
+    const cacheItem = window.STOCK_CACHE?.[center]?.[itemName];
+    const stock = cacheItem?.qty ?? 0;
+    const level = cacheItem?.level || 'ok';
 
-    const safety = getSafety(center, itemName);
-        if (stock <= safety) {
+        if (level === 'warn' || level === 'critical') {
           html += `
             <div class="alert-item">
               <div>
-                <div class="alert-item-name">${item.name}</div>
-                <div class="alert-item-sub">${center}</div>
+                <div class="alert-item-name">${level === 'critical' ? '🔴' : '⚠️'} ${item.name}</div>
+                <div class="alert-item-sub">${CENTER_NAMES[center] || center}</div>
               </div>
               <div class="alert-qty">${stock}</div>
             </div>`;
@@ -2270,17 +2428,25 @@ function renderDetailContent(center) {
         items.forEach(item => {
 
             const itemName = item.name;
+            const cacheItem = window.STOCK_CACHE[center]?.[itemName] || {};
+            const stock = cacheItem.qty ?? 0;
+            const level = cacheItem.level || 'ok'; // ok | warn | critical
+            const expiry = cacheItem.expiry || '';
+            const notes = cacheItem.notes || '';
 
-            const stock = window.STOCK_CACHE[center]?.[itemName]?.qty ?? 0;
-            const safety = getSafety(center, itemName);
-            const isWarn = stock <= safety;
+            const colorVar = level === 'critical' ? 'var(--red)' : level === 'warn' ? 'var(--yellow)' : 'var(--green)';
+            const statusClass = level === 'critical' ? 'status-warn' : level === 'warn' ? 'status-warn' : 'status-ok';
 
             html += `
                 <div class="item-row">
-                    <div class="item-row-name">${itemName}</div>
+                    <div class="item-row-name">
+                        ${itemName}
+                        ${expiry ? `<div style="font-size:10px;color:var(--text2);margin-top:2px">⏳ ينتهي: ${expiry}</div>` : ''}
+                        ${notes ? `<div style="font-size:10px;color:var(--text2);margin-top:2px">📌 ${notes}</div>` : ''}
+                    </div>
                     <div class="item-row-right">
-                        <div class="item-qty" style="color:${isWarn ? 'var(--red)' : 'var(--green)'}">${stock}</div>
-                        <div class="item-status ${isWarn ? 'status-warn' : 'status-ok'}"></div>
+                        <div class="item-qty" style="color:${colorVar}">${stock}</div>
+                        <div class="item-status ${statusClass}" style="${level==='warn' ? 'background:var(--yellow)' : ''}"></div>
                     </div>
                 </div>
             `;
@@ -2306,18 +2472,30 @@ async function loadHistory() {
 
   el.innerHTML = `
     <div class="section-title">📋 آخر الحركات (${movements.length})</div>
-    ${movements.slice(0, 50).map(m => `
+    ${movements.slice(0, 50).map(m => {
+      const isInventory = m.type === 'جرد';
+      const dateTxt = m.date ? new Date(m.date).toLocaleString('ar-SA') : (m.timestamp || '');
+      let qtyHtml;
+      if (isInventory) {
+        qtyHtml = `<div class="history-qty" style="color:var(--yellow)">🔄 ${m.qty}</div>`;
+      } else {
+        qtyHtml = `<div class="history-qty ${m.type === 'إضافة' ? 'qty-add' : 'qty-sub'}">
+          ${m.type === 'إضافة' ? '+' : '-'}${m.qty}
+        </div>`;
+      }
+      return `
       <div class="history-item">
         <div class="history-info">
-          <div class="history-name">${m.item}</div>
-          <div class="history-meta">${m.center} · ${m.timestamp}</div>
+          <div class="history-name">${isInventory ? '📝 جرد: ' : ''}${m.item}</div>
+          <div class="history-meta">${m.center} · ${dateTxt}</div>
           ${m.empName ? `<div class="history-meta">👤 ${m.empName}</div>` : ''}
+          ${isInventory && m.notes ? `<div class="history-meta">📌 ${m.notes}</div>` : ''}
+          ${isInventory && m.expiry ? `<div class="history-meta">⏳ ينتهي: ${m.expiry}</div>` : ''}
         </div>
-        <div class="history-qty ${m.type === 'إضافة' ? 'qty-add' : 'qty-sub'}">
-          ${m.type === 'إضافة' ? '+' : '-'}${m.qty}
-        </div>
+        ${qtyHtml}
       </div>
-    `).join('')}
+    `;
+    }).join('')}
   `;
 }
 
@@ -2720,6 +2898,8 @@ function renderRequestCard(r, viewerRole) {
       actionsHtml = `<button class="req-btn req-btn-primary" onclick="raiseRequest('${r.id}')">📤 رفع لإدارة التموين</button>`;
     } else if (r.status === 'مرفوع للتموين') {
       actionsHtml = `<button class="req-btn req-btn-success" onclick="markArrivedSector('${r.id}')">✅ تم الوصول للقطاع</button>`;
+    } else if (r.status === 'وصل للقطاع') {
+      actionsHtml = `<button class="req-btn req-btn-success" onclick="markDeliveredCenter('${r.id}')">🚚 تم التوصيل للمركز</button>`;
     } else if (r.status === 'تم التوصيل للمركز') {
       actionsHtml = `<button class="req-btn req-btn-success" onclick="confirmRequest('${r.id}')">✔️ تأكيد الاستلام النهائي</button>`;
     }
