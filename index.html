@@ -1298,11 +1298,39 @@ const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz-p_XcQQECqpu20Q0jK
  * API CLIENT
  ****************************************************************/
 
+  // ======== جلسة الدخول ========
+  // تُصدر من السيرفر بعد تسجيل دخول صحيح، وتُرسل مع كل طلب.
+  // بدونها السيرفر يرفض أي قراءة أو كتابة.
+  let SESSION_TOKEN = '';
+
+  try {
+    SESSION_TOKEN = sessionStorage.getItem('ems_token') || '';
+  } catch (e) { SESSION_TOKEN = ''; }
+
+  function setSessionToken(t) {
+    SESSION_TOKEN = t || '';
+    try {
+      if (t) sessionStorage.setItem('ems_token', t);
+      else sessionStorage.removeItem('ems_token');
+    } catch (e) { /* التخزين المحلي معطّل — نكمل بالذاكرة */ }
+  }
+
+  function handleAuthError(msg) {
+    if (String(msg).includes('UNAUTHORIZED')) {
+      setSessionToken('');
+      alert('انتهت جلستك أو تم تسجيل خروجك — سجّل دخول مرة ثانية');
+      if (typeof logout === 'function') logout();
+      return true;
+    }
+    return false;
+  }
+
   async function apiGet(action, params = {}) {
 
     const url = new URL(SCRIPT_URL);
 
     url.searchParams.set("action", action);
+    if (SESSION_TOKEN) url.searchParams.set("token", SESSION_TOKEN);
 
     Object.entries(params).forEach(([key, value]) => {
         url.searchParams.set(key, value);
@@ -1312,25 +1340,30 @@ const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz-p_XcQQECqpu20Q0jK
 
     const json = await response.json();
 
-    if (!json.success)
+    if (!json.success) {
+        handleAuthError(json.message);
         throw new Error(json.message);
+    }
 
     return json.data;
 }
 
 async function apiPost(data) {
 
-    console.log("POST BODY:", data);
+    const payload = Object.assign({}, data);
+    if (SESSION_TOKEN) payload.token = SESSION_TOKEN;
 
     const response = await fetch(SCRIPT_URL, {
         method: "POST",
-        body: JSON.stringify(data)
+        body: JSON.stringify(payload)
     });
 
     const json = await response.json();
 
-    if (!json.success)
+    if (!json.success) {
+        handleAuthError(json.message);
         throw new Error(json.message);
+    }
 
     return json.data;
 }
@@ -1429,7 +1462,8 @@ async function tryLogin() {
 
   try {
     const data = await apiPost({ action: 'login', code: code, pin: pin });
-    currentUser = data; // { code, name, title, permissions }
+    currentUser = data; // { code, name, title, permissions, token }
+    setSessionToken(data.token); // تفعيل الجلسة قبل أي طلب آخر
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('appWrapper').style.display = 'block';
     applyRoleUI();
@@ -1518,6 +1552,7 @@ function showTabDirect(tabId) {
 
 function logout() {
   currentUser = null;
+  setSessionToken(''); // إلغاء الجلسة محليًا
   loginStage = 'code';
   document.getElementById('loginScreen').style.display = 'flex';
   document.getElementById('appWrapper').style.display = 'none';
