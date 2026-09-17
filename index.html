@@ -2962,16 +2962,21 @@ function renderNeededItems() {
       : '<span style="color:var(--yellow)">⚠️ منخفض</span>';
 
     if (it.hasOpenRequest) {
+      const o = it.openRequest || {};
+      const who = o.by ? `${o.by}${o.empId ? ' (' + o.empId + ')' : ''}` : 'زميل بالمركز';
       return `
-        <div class="req-item-row" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);opacity:.6">
-          <div style="display:flex;align-items:center;gap:10px">
-            <span style="width:16px"></span>
-            <div>
+        <div class="req-item-row" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);opacity:.7">
+          <div style="display:flex;align-items:center;gap:10px;min-width:0">
+            <span style="width:16px;flex-shrink:0"></span>
+            <div style="min-width:0">
               <div style="font-weight:600">${it.item}</div>
               <div style="font-size:11px;color:var(--text2)">المتوفر: ${it.qty} — ${badge}</div>
+              <div style="font-size:11px;color:var(--yellow);margin-top:3px">
+                🕓 مطلوب مسبقًا · 📦 ${o.qty || ''} · 👤 ${who}
+              </div>
+              <div style="font-size:10px;color:var(--text2)">🕐 ${o.date || ''} · الحالة: ${o.status || ''}</div>
             </div>
           </div>
-          <div style="font-size:12px;color:var(--text2);white-space:nowrap">🕓 طلب قائم</div>
         </div>`;
     }
 
@@ -3069,16 +3074,33 @@ async function sendRequests(items, empId) {
   }));
 
   try {
+    let result = null;
     if (SCRIPT_URL) {
-      await apiPost({ action: 'addRequestsBulk', requests });
+      result = await apiPost({ action: 'addRequestsBulk', requests });
     }
 
     memRequests = await loadRequestsAPI();
 
-    document.getElementById('reqSuccessMsg').textContent =
-      requests.length === 1
-        ? `طلبك لـ ${requests[0].item} (${requests[0].qty}) في ${center} وصل للقيادي المناوب`
-        : `تم إرسال ${requests.length} طلب لـ ${center} ووصلت للقيادي المناوب`;
+    // أصناف رفضها السيرفر لأن عليها طلب مفتوح أصلاً (زميل سبقك)
+    const skipped = (result && result.skipped) || [];
+    const sent = (result && result.created) ? result.created.length : requests.length;
+
+    let msg;
+    if (sent === 0) {
+      msg = `ما انرسل أي طلب — كل الأصناف عليها طلبات مفتوحة مسبقًا من زملائك`;
+    } else if (sent === 1) {
+      msg = `طلبك لـ ${requests[0].item} (${requests[0].qty}) في ${center} وصل للقيادي المناوب`;
+    } else {
+      msg = `تم إرسال ${sent} طلب لـ ${center} ووصلت للقيادي المناوب`;
+    }
+
+    if (skipped.length > 0) {
+      msg += `\n\n🕓 تم تجاهل ${skipped.length} صنف لأن عليها طلبات مفتوحة أصلاً:\n• ${skipped.slice(0, 8).join('\n• ')}`;
+      if (skipped.length > 8) msg += `\n• ... و${skipped.length - 8} غيرها`;
+    }
+
+    document.getElementById('reqSuccessMsg').style.whiteSpace = 'pre-line';
+    document.getElementById('reqSuccessMsg').textContent = msg;
 
     document.getElementById('reqFormSection').style.display = 'none';
     document.getElementById('reqNeededSection').style.display = 'none';
@@ -3120,10 +3142,20 @@ async function loadRequestsScreen() {
   const fetched = await fetchRequests();
 memRequests = fetched.length ? fetched : memRequests;
 
-const activeRequests = memRequests.filter(r => r.status !== "مكتمل");
+const isLeader = canAdvanceRequests();
+
+let activeRequests = memRequests.filter(r => r.status !== "مكتمل" && r.status !== "ملغي");
+
+// من ما عنده صلاحية تحريك الطلبات (أخصائي/فني): يشوف فقط اللي وصل مركزه
+// عشان يأكد استلامه — ما يشوف مراحل الرفع والقطاع إطلاقًا
+if (!isLeader) {
+  activeRequests = activeRequests.filter(r => r.status === 'تم التوصيل للمركز');
+}
 
 if (activeRequests.length === 0) {
-  el.innerHTML = `<div class="loading" style="color:var(--text2)">📥 لا توجد طلبات حالياً</div>`;
+  el.innerHTML = `<div class="loading" style="color:var(--text2)">${
+    isLeader ? '📥 لا توجد طلبات حالياً' : '📥 ما فيه طلبات بانتظار تأكيد الاستلام'
+  }</div>`;
   return;
 }
 
@@ -3136,8 +3168,21 @@ activeRequests.forEach(r => {
 });
 
 el.innerHTML =
-  `<div class="section-title">📥 طلبات التموين (${activeRequests.length} صنف · ${Object.keys(groups).length} مجموعة)</div>` +
-  Object.keys(groups).map((key, gi) => renderRequestGroup(groups[key], gi, 'leader')).join('');
+  `<div class="section-title">${
+    isLeader
+      ? `📥 طلبات التموين (${activeRequests.length} صنف · ${Object.keys(groups).length} مجموعة)`
+      : `📦 بانتظار تأكيد الاستلام (${activeRequests.length} صنف)`
+  }</div>` +
+  Object.keys(groups).map((key, gi) => renderRequestGroup(groups[key], gi, isLeader ? 'leader' : 'receiver')).join('');
+}
+
+// من يحق له تحريك الطلب (رفع للتموين / وصل القطاع / تم التوصيل)؟
+// يعتمد على عمود "رفع الطلبات" بتبويب الصلاحيات إن وُجد،
+// وإلا يرجع لـ"إدارة المسعفين" (القيادي وكبير المسعفين ومالك النظام).
+function canAdvanceRequests() {
+  const p = (currentUser && currentUser.permissions) || {};
+  if (p['رفع الطلبات'] !== undefined) return !!p['رفع الطلبات'];
+  return !!p['إدارة المسعفين'];
 }
 
 // ----- كرت مجموعة طلبات (مركز + حالة واحدة) -----
@@ -3146,14 +3191,18 @@ function renderRequestGroup(g, gi, viewerRole) {
   window.REQ_GROUPS = window.REQ_GROUPS || {};
   window.REQ_GROUPS[gi] = ids;
 
+  // 'leader' = يحرّك الطلب بكل مراحله | 'receiver' = يأكد الاستلام فقط
+  const isLeader = viewerRole === 'leader';
+
   let actionLabel = '', actionFn = '';
-  if (g.status === 'جديد') {
+  if (isLeader && g.status === 'جديد') {
     actionLabel = '📤 رفع الكل لإدارة التموين'; actionFn = 'raiseGroup';
-  } else if (g.status === 'مرفوع للتموين') {
+  } else if (isLeader && g.status === 'مرفوع للتموين') {
     actionLabel = '✅ وصل الكل للقطاع'; actionFn = 'arrivedGroup';
-  } else if (g.status === 'وصل للقطاع') {
+  } else if (isLeader && g.status === 'وصل للقطاع') {
     actionLabel = '🚚 تم توصيل الكل للمركز'; actionFn = 'deliveredGroup';
   } else if (g.status === 'تم التوصيل للمركز') {
+    // تأكيد الاستلام متاح للقيادي وللأخصائي/الفني على حد سواء
     actionLabel = '✔️ تأكيد استلام الكل'; actionFn = 'confirmGroup';
   }
 
@@ -3191,10 +3240,11 @@ function renderRequestGroup(g, gi, viewerRole) {
 
       ${existingNote ? `<div class="req-meta" style="margin-top:10px">📝 ${existingNote}</div>` : ''}
 
-      ${actionFn ? `
+      ${(actionFn || isLeader) ? `
         <div style="margin-top:12px">
-          <textarea id="grpNote_${gi}" class="req-notes" placeholder="ملاحظة (اختياري) — تنحفظ على كل أصناف المجموعة" style="width:100%;margin-bottom:8px"></textarea>
-          <button class="req-btn req-btn-primary" style="width:100%" onclick="${actionFn}(${gi})">${actionLabel}</button>
+          <textarea id="grpNote_${gi}" class="req-notes" placeholder="ملاحظة أو سبب الإلغاء (اختياري) — تنحفظ على كل أصناف المجموعة" style="width:100%;margin-bottom:8px"></textarea>
+          ${actionFn ? `<button class="req-btn req-btn-primary" style="width:100%" onclick="${actionFn}(${gi})">${actionLabel}</button>` : ''}
+          ${isLeader ? `<button class="req-btn" style="width:100%;margin-top:8px;background:transparent;border:1px solid var(--red);color:var(--red)" onclick="cancelGroup(${gi})">✕ إلغاء الطلب (${g.items.length} صنف)</button>` : ''}
         </div>` : ''}
     </div>`;
 }
@@ -3215,7 +3265,8 @@ async function applyGroupUpdate(gi, updates) {
 
   const noteEl = document.getElementById(`grpNote_${gi}`);
   const note = noteEl ? noteEl.value.trim() : '';
-  if (note) updates.notes = note;
+  // لا نطمس ملاحظة جاهزة (مثل نص الإلغاء الذي يحمل اسم من ألغى)
+  if (note && updates.notes === undefined) updates.notes = note;
 
   const el = document.getElementById('requestsContent');
   el.innerHTML = '<div class="loading"><div class="spinner"></div>جاري تحديث الطلبات...</div>';
@@ -3252,6 +3303,24 @@ async function confirmGroup(gi) {
   await applyGroupUpdate(gi, { status: 'مكتمل', confirmedTime: now, confirmedBy: currentUser?.name || '' });
 }
 
+// إلغاء الطلب — للقيادي وكبير المسعفين ومالك النظام فقط
+// الأصناف الملغاة تنفك ويقدر أي مسعف يطلبها من جديد
+async function cancelGroup(gi) {
+  const ids = (window.REQ_GROUPS || {})[gi] || [];
+  if (ids.length === 0) return;
+
+  if (!confirm(`متأكد من إلغاء ${ids.length} صنف؟\nالأصناف الملغاة ترجع متاحة للطلب من جديد.`)) return;
+
+  const noteEl = document.getElementById(`grpNote_${gi}`);
+  const reason = noteEl ? noteEl.value.trim() : '';
+  const now = new Date().toLocaleString('ar-SA');
+
+  await applyGroupUpdate(gi, {
+    status: 'ملغي',
+    notes: `❌ أُلغي بواسطة ${currentUser?.name || ''} — ${now}${reason ? ' — ' + reason : ''}`
+  });
+}
+
 // أسماء الأزرار الفردية داخل المجموعة (تعمل على صنف واحد فقط)
 function arrivedRequest(id) { return markArrivedSector(id); }
 function deliveredRequest(id) { return markDeliveredCenter(id); }
@@ -3262,6 +3331,7 @@ function statusClass(status) {
   if (status === 'وصل للقطاع') return 'status-sector';
   if (status === 'تم التوصيل للمركز') return 'status-delivered';
   if (status === 'مكتمل') return 'status-confirmed';
+  if (status === 'ملغي') return 'status-warn';
   return 'status-new';
 }
 
