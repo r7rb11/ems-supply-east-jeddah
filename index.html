@@ -998,85 +998,48 @@ flex:1;
     <div class="form-card">
       <h2>📦 تسجيل حركة مخزون</h2>
 
-      <div class="step-indicator">
-        <div class="step active" id="step1"></div>
-        <div class="step" id="step2"></div>
-        <div class="step" id="step3"></div>
-        <div class="step" id="step4"></div>
-      </div>
+      <label>١. اختر المركز</label>
+      <select id="selCenter" onchange="onCenterChange()">
+        <option value="">— اختر المركز —</option>
+        <option value="qweiza">مركز قويزة</option>
+        <option value="kilo7">مركز كيلو سبعة</option>
+        <option value="rahili">مركز الرحيلي</option>
+        <option value="naseem">مركز النسيم</option>
+        <option value="harazat">مركز الحرازات</option>
+      </select>
 
-      <!-- STEP 1: CENTER -->
-      <div id="stepBlock1">
-        <label>١. اختر المركز</label>
-        <select id="selCenter" onchange="onCenterChange()">
-          <option value="">— اختر المركز —</option>
-          <option value="qweiza">مركز قويزة</option>
-          <option value="kilo7">مركز كيلو سبعة</option>
-          <option value="rahili">مركز الرحيلي</option>
-          <option value="naseem">مركز النسيم</option>
-          <option value="harazat">مركز الحرازات</option>
-        </select>
-      </div>
+      <div id="movCatBlock" style="display:none">
+        <label>٢. اختر التصنيفات (تقدر تختار أكثر من واحد)</label>
+        <div id="movCatList" style="max-height:190px;overflow-y:auto;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:14px"></div>
 
-      <!-- STEP 2: MOVEMENT TYPE -->
-      <div id="stepBlock2" style="display:none">
-        <label>٢. نوع الحركة</label>
-        <div class="movement-btns">
-          <button class="mov-btn" id="btnAdd" onclick="selectMovement('إضافة')">
-            <span class="mov-icon">⬆️</span>إضافة للمستودع
-          </button>
-          <button class="mov-btn" id="btnSub" onclick="selectMovement('سحب')">
-            <span class="mov-icon">⬇️</span>سحب من المستودع
-          </button>
-        </div>
-      </div>
-
-      <!-- STEP 3: ITEM -->
-      <div id="stepBlock3" style="display:none">
-        <label>٣. اختر الصنف</label>
-
-        <!-- CAMERA SCAN BUTTON -->
         <button class="scan-btn" onclick="openCamera()">
           <span style="font-size:22px">📷</span>
           صوّر الصنف وسأتعرف عليه تلقائياً
         </button>
 
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-          <div style="flex:1;height:1px;background:var(--border)"></div>
-          <span style="font-size:11px;color:var(--text2)">أو اختر يدوياً</span>
-          <div style="flex:1;height:1px;background:var(--border)"></div>
+        <label>الكود الوظيفي <span style="color:var(--red)">*</span></label>
+        <input type="number" id="inputEmpId" placeholder="أدخل كودك الوظيفي (إجباري)" style="margin-bottom:6px; border-color: var(--accent);">
+        <label>اسم الموظف</label>
+        <input type="text" id="inputEmpName" placeholder="اسم الموظف" style="font-family: inherit; padding:12px 14px; width:100%; background: var(--surface2); border:1px solid var(--border); border-radius:10px; color:var(--text); margin-bottom:4px; outline:none; direction:rtl">
+      </div>
+    </div>
+
+    <div id="movTableSection" style="display:none">
+      <div class="form-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:4px">
+          <h2 style="margin:0">الأصناف</h2>
+          <div style="font-size:11px;color:var(--text2)" id="movChangedCount">ما دخلت أي كمية</div>
+        </div>
+        <div style="font-size:11px;color:var(--text2);margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border)">
+          اكتب الكمية للأصناف اللي تحرّكها بس، واختر نوع الحركة جنب كل صنف. الصنف اللي تتركه فاضي ما يتأثر.
         </div>
 
-        <select id="selCategory" onchange="onCategoryChange()">
-          <option value="">— اختر الفئة —</option>
-          <option>AIRWAY</option>
-          <option>BREATHING</option>
-          <option>CIRCULATION</option>
-          <option>CARDIAC</option>
-          <option>TRAUMA</option>
-          <option>OB</option>
-          <option>MEDICAL CONSUMABLES</option>
-          <option>INFECTION CONTROL</option>
-          <option>MEDICATION</option>
-        </select>
-        <select id="selItem" style="display:none" onchange="onItemChange()">
-          <option value="">— اختر الصنف —</option>
-        </select>
-      </div>
+        <div id="movTableBody"></div>
 
-      <!-- STEP 4: QUANTITY -->
-      <div id="stepBlock4" style="display:none">
-        <label>٤. الكمية</label>
-        <input type="number" id="inputQty" min="1" placeholder="أدخل العدد" oninput="onQtyChange()">
-        <label style="margin-top:-8px">الكود الوظيفي <span style="color:var(--red)">*</span></label>
-        <input type="number" id="inputEmpId" placeholder="أدخل كودك الوظيفي (إجباري)" style="margin-bottom:6px; border-color: var(--accent);" oninput="updateSubmit()">
-        <label>اسم الموظف</label>
-        <input type="text" id="inputEmpName" placeholder="اسم الموظف" style="font-family: inherit; padding:12px 14px; width:100%; background: var(--surface2); border:1px solid var(--border); border-radius:10px; color:var(--text); margin-bottom:14px; outline:none; direction:rtl">
+        <button class="btn-submit" id="btnSubmit" disabled onclick="submitMovementBulk()" type="button" style="margin-top:14px">
+          ✅ تأكيد وإرسال
+        </button>
       </div>
-
-      <button class="btn-submit" id="btnSubmit" disabled onclick="submitMovement()" type="button">
-        تأكيد وإرسال
-      </button>
     </div>
   </div>
 </div>
@@ -1567,22 +1530,7 @@ function logout() {
 
 
 
-// ======== MOVEMENT TYPE ========
-function selectMovement(type){
-  selectedMovement=type;
-  const add=document.getElementById('btnAdd');
-  const sub=document.getElementById('btnSub');
-  add.classList.remove('selected-add');
-  sub.classList.remove('selected-sub');
-  if(type==='إضافة'){
-    add.classList.add('selected-add');
-  }else{
-    sub.classList.add('selected-sub');
-  }
-  document.getElementById('stepBlock3').style.display='block';
-  setStep(3);
-  updateSubmit();
-}
+// نوع الحركة صار يُختار لكل صنف على حدة داخل الجدول
 
 // ======== CAMERA ========
 async function openCamera() {
@@ -1744,26 +1692,29 @@ function useScannedItem() {
   if (!scannedResult) return;
   closeCamera();
 
-  // Set category
-  document.getElementById('selCategory').value = scannedResult.cat;
-  selectedCategory = scannedResult.cat;
+  // فعّل تصنيف الصنف المكتشف إن ما كان مفعّلاً، ثم انتقل لصفه بالجدول
+  const cb = Array.from(document.querySelectorAll('.mov-cat'))
+    .find(c => c.value === scannedResult.cat);
 
-  // Populate items dropdown
-  const sel = document.getElementById('selItem');
-  sel.innerHTML = '<option value="">— اختر الصنف —</option>';
-  ITEMS[scannedResult.cat].forEach(item => {
-    sel.innerHTML += `
-        <option ${item.name === scannedResult.item ? 'selected' : ''}>
-            ${item.name}
-        </option>`;
-});
-  sel.style.display = 'block';
+  if (cb && !cb.checked) {
+    cb.checked = true;
+    onMovCatsChange();
+  }
 
-  // Set selected item
-  selectedItem = scannedResult.item;
-  show('stepBlock4');
-  setStep(4);
-  updateSubmit();
+  const idx = movRows.findIndex(r => r.name === scannedResult.item);
+  if (idx === -1) {
+    alert('تعرفت على: ' + scannedResult.item + '\nلكن ما لقيته بأصناف هذا المركز');
+    return;
+  }
+
+  const row = document.getElementById(`movRow_${idx}`);
+  const qty = document.getElementById(`movQ_${idx}`);
+  if (row) {
+    row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    row.style.outline = '2px solid var(--accent)';
+    setTimeout(() => { row.style.outline = ''; }, 2500);
+  }
+  if (qty) qty.focus();
 }
 
 // ======== TABS ========
@@ -1780,25 +1731,238 @@ async function showTab(tab) {
     if (tab === "logistics") await loadLogisticsScreen();
 }
 
-// ======== FORM STEPS ========
+// ======== حركة المخزون (تصنيفات متعددة + أصناف متعددة) ========
+let movRows = [];        // [{id, name, category, curQty, curExpiry}]
+let movSelectedCats = [];
+
 async function onCenterChange() {
   selectedCenter = document.getElementById('selCenter').value;
-  selectedMovement = '';
-  selectedCategory = '';
-  selectedItem = '';
-  document.getElementById('btnAdd').className = 'mov-btn';
-  document.getElementById('btnSub').className = 'mov-btn';
-  document.getElementById('selCategory').value = '';
-  document.getElementById('selItem').style.display = 'none';
-  document.getElementById('inputQty').value = '';
+  movRows = [];
+  movSelectedCats = [];
+  document.getElementById('movTableSection').style.display = 'none';
+  document.getElementById('movTableBody').innerHTML = '';
+  document.getElementById('btnSubmit').disabled = true;
 
-  if (selectedCenter) {
-    // حمّل الأصناف من الشيت
-    await loadItemsFromSheet();
-    show('stepBlock2');
-    setStep(2);
+  if (!selectedCenter) {
+    document.getElementById('movCatBlock').style.display = 'none';
+    return;
   }
-  updateSubmit();
+
+  if (!ITEMS || Object.keys(ITEMS).length === 0) {
+    await loadItemsFromSheet();
+  }
+
+  // رصيد المركز لازم يكون محمّل عشان نمنع السحب بأكثر من المتوفر
+  await loadStockFromSheet(selectedCenter);
+
+  renderMovCategories();
+  document.getElementById('movCatBlock').style.display = 'block';
+}
+
+function renderMovCategories() {
+  const box = document.getElementById('movCatList');
+  const cats = Object.keys(ITEMS).sort();
+  box.innerHTML = cats.map((cat, i) => `
+    <label style="display:flex;align-items:center;gap:8px;padding:7px 0;cursor:pointer;font-size:13px;border-bottom:1px solid var(--border)">
+      <input type="checkbox" class="mov-cat" value="${escapeAttr(cat)}" onchange="onMovCatsChange()" style="width:16px;height:16px;accent-color:var(--green)">
+      <span>${cat} <span style="color:var(--text2);font-size:11px">(${(ITEMS[cat]||[]).length})</span></span>
+    </label>
+  `).join('');
+}
+
+function onMovCatsChange() {
+  movSelectedCats = Array.from(document.querySelectorAll('.mov-cat:checked')).map(c => c.value);
+
+  if (movSelectedCats.length === 0) {
+    document.getElementById('movTableSection').style.display = 'none';
+    movRows = [];
+    document.getElementById('btnSubmit').disabled = true;
+    return;
+  }
+
+  const byId = stockByIdFor(selectedCenter);
+  movRows = [];
+  movSelectedCats.forEach(cat => {
+    (ITEMS[cat] || []).forEach(item => {
+      const c = byId[String(item.id)] || window.STOCK_CACHE?.[selectedCenter]?.[item.name] || {};
+      movRows.push({
+        id: item.id,
+        name: item.name,
+        category: cat,
+        curQty: Number(c.qty) || 0,
+        curExpiry: normalizeDateForInput(c.expiry || '')
+      });
+    });
+  });
+
+  renderMovTable();
+  document.getElementById('movTableSection').style.display = 'block';
+}
+
+function renderMovTable() {
+  const body = document.getElementById('movTableBody');
+
+  let html = '';
+  let lastCat = '';
+  movRows.forEach((r, i) => {
+    if (r.category !== lastCat) {
+      lastCat = r.category;
+      html += `<div style="font-size:12px;font-weight:600;color:var(--accent);margin:14px 0 6px;padding-bottom:4px;border-bottom:1px solid var(--border)">${r.category}</div>`;
+    }
+    html += `
+      <div style="padding:10px 0;border-bottom:1px solid var(--border)" id="movRow_${i}">
+        <div style="font-weight:600;margin-bottom:2px">${r.name}</div>
+        <div style="font-size:11px;color:var(--text2);margin-bottom:8px">
+          المتوفر: ${r.curQty}${r.curExpiry ? ` · ينتهي: ${r.curExpiry}` : ''}
+        </div>
+        <div style="display:grid;grid-template-columns:.8fr 1fr 1.2fr;gap:6px">
+          <div>
+            <label style="font-size:10px;color:var(--text2);display:block;margin-bottom:3px">الكمية</label>
+            <input type="number" min="1" id="movQ_${i}" placeholder="0" oninput="onMovFieldChange(${i})"
+              style="width:100%;padding:9px 4px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);text-align:center;margin:0">
+          </div>
+          <div>
+            <label style="font-size:10px;color:var(--text2);display:block;margin-bottom:3px">الحركة</label>
+            <select id="movT_${i}" onchange="onMovFieldChange(${i})"
+              style="width:100%;padding:9px 4px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);margin:0;font-size:12px">
+              <option value="إضافة">⬆️ إضافة</option>
+              <option value="سحب">⬇️ سحب</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:10px;color:var(--text2);display:block;margin-bottom:3px">تاريخ الانتهاء</label>
+            <input type="date" id="movE_${i}" onchange="onMovFieldChange(${i})"
+              style="width:100%;padding:9px 4px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);direction:ltr;margin:0;font-size:12px">
+          </div>
+        </div>
+        <div id="movWarn_${i}" style="font-size:11px;color:var(--red);margin-top:5px;display:none"></div>
+      </div>`;
+  });
+
+  body.innerHTML = html;
+  updateMovCount();
+}
+
+function getMovFilledRows() {
+  const filled = [];
+  movRows.forEach((r, i) => {
+    const qEl = document.getElementById(`movQ_${i}`);
+    if (!qEl || qEl.value === '') return;
+    const qty = Number(qEl.value);
+    if (isNaN(qty) || qty <= 0) return;
+
+    filled.push({
+      idx: i,
+      itemId: r.id,
+      item: r.name,
+      category: r.category,
+      qty: qty,
+      type: document.getElementById(`movT_${i}`).value,
+      expiry: document.getElementById(`movE_${i}`).value || '',
+      curQty: r.curQty
+    });
+  });
+  return filled;
+}
+
+function onMovFieldChange(i) {
+  const row = document.getElementById(`movRow_${i}`);
+  const warn = document.getElementById(`movWarn_${i}`);
+  const qEl = document.getElementById(`movQ_${i}`);
+  const tEl = document.getElementById(`movT_${i}`);
+  const r = movRows[i];
+
+  const qty = Number(qEl.value);
+  const hasQty = qEl.value !== '' && !isNaN(qty) && qty > 0;
+
+  // تحذير فوري لو السحب أكبر من المتوفر
+  if (hasQty && tEl.value === 'سحب' && qty > r.curQty) {
+    warn.style.display = 'block';
+    warn.textContent = `❌ المتوفر ${r.curQty} فقط — ما تقدر تسحب ${qty}`;
+  } else {
+    warn.style.display = 'none';
+  }
+
+  if (row) {
+    row.style.background = hasQty
+      ? (tEl.value === 'سحب' ? 'rgba(239,68,68,.07)' : 'rgba(34,197,94,.07)')
+      : '';
+  }
+  updateMovCount();
+}
+
+function updateMovCount() {
+  const filled = getMovFilledRows();
+  const bad = filled.filter(f => f.type === 'سحب' && f.qty > f.curQty);
+  const el = document.getElementById('movChangedCount');
+
+  if (el) {
+    if (filled.length === 0) {
+      el.textContent = 'ما دخلت أي كمية';
+      el.style.color = 'var(--text2)';
+    } else if (bad.length > 0) {
+      el.textContent = `⚠️ ${bad.length} صنف سحبه أكبر من المتوفر`;
+      el.style.color = 'var(--red)';
+    } else {
+      el.textContent = `✏️ ${filled.length} صنف جاهز`;
+      el.style.color = 'var(--green)';
+    }
+  }
+
+  const btn = document.getElementById('btnSubmit');
+  if (btn) btn.disabled = filled.length === 0 || bad.length > 0;
+}
+
+async function submitMovementBulk() {
+  const btn = document.getElementById('btnSubmit');
+  const filled = getMovFilledRows();
+  if (filled.length === 0) return;
+
+  const empId = document.getElementById('inputEmpId').value.trim();
+  if (!empId) { alert('❌ أدخل الكود الوظيفي'); return; }
+  const empName = document.getElementById('inputEmpName').value || (currentUser ? currentUser.name : '');
+
+  btn.disabled = true;
+  btn.textContent = 'جاري الإرسال...';
+
+  try {
+    const res = await apiPost({
+      action: 'movementBulk',
+      center: selectedCenter,
+      items: filled.map(f => ({
+        itemId: f.itemId, item: f.item, category: f.category,
+        qty: f.qty, type: f.type, expiry: f.expiry
+      })),
+      empId: empId,
+      empName: empName
+    });
+
+    await loadStockFromSheet(selectedCenter);
+    await loadMovementsFromSheet();
+    window.STOCK_CACHE_LOADED = false;
+    await loadDashboardUI();
+
+    const added = filled.filter(f => f.type === 'إضافة').length;
+    const taken = filled.filter(f => f.type === 'سحب').length;
+    let msg = `تم تسجيل ${(res && res.updated) || filled.length} حركة بـ ${CENTER_NAMES[selectedCenter] || selectedCenter}`;
+    if (added) msg += `\n⬆️ إضافة: ${added} صنف`;
+    if (taken) msg += `\n⬇️ سحب: ${taken} صنف`;
+    if (res && res.errors && res.errors.length) {
+      msg += `\n\n⚠️ لم تُنفّذ:\n• ${res.errors.slice(0, 6).join('\n• ')}`;
+    }
+
+    const msgEl = document.getElementById('successMsg');
+    msgEl.style.whiteSpace = 'pre-line';
+    msgEl.textContent = msg;
+
+    document.getElementById('formSection').style.display = 'none';
+    document.getElementById('successCard').classList.add('show');
+  } catch (e) {
+    alert('❌ حدث خطأ: ' + (e.message || e));
+  }
+
+  btn.disabled = false;
+  btn.textContent = '✅ تأكيد وإرسال';
 }
 
 async function loadItemsFromSheet() {
@@ -1833,71 +1997,8 @@ async function loadItemsFromSheet() {
 }
 
 function populateCategories() {
-  const sel = document.getElementById('selCategory');
-  sel.innerHTML = '<option value="">— اختر الفئة —</option>';
-  Object.keys(ITEMS).sort().forEach(cat => {
-    sel.innerHTML += `<option>${cat}</option>`;
-  });
-}
-
-
-function onCategoryChange() {
-  selectedCategory = document.getElementById('selCategory').value;
-
-  selectedItem = "";
-  selectedItemId = "";
-
-  const sel = document.getElementById('selItem');
-  sel.innerHTML = '<option value="">— اختر الصنف —</option>';
-
-  if (selectedCategory && ITEMS[selectedCategory]) {
-
-    ITEMS[selectedCategory].forEach(item => {
-
-      sel.innerHTML += `
-        <option value="${item.id}">
-          ${item.name}
-        </option>
-      `;
-
-    });
-
-    sel.style.display = 'block';
-  }
-
-  updateSubmit();
-}
-
-function onItemChange() {
-
-  console.log("onItemChange fired");
-
-  selectedItemId = document.getElementById('selItem').value;
-
-  console.log("selectedCategory =", selectedCategory);
-  console.log("selectedItemId =", selectedItemId);
-  console.log("ITEMS[selectedCategory] =", ITEMS[selectedCategory]);
-
-  const item = ITEMS[selectedCategory].find(i => i.id == selectedItemId);
-
-  console.log("FOUND ITEM =", item);
-
-  selectedItem = item ? item.name : "";
-
-  if (selectedItem) {
-    show('stepBlock4');
-    setStep(4);
-  }
-
-  updateSubmit();
-}
-function onQtyChange() { updateSubmit(); }
-
-function updateSubmit() {
-  const qty = parseInt(document.getElementById('inputQty').value);
-  const empId = document.getElementById('inputEmpId').value.trim();
-  const ok = selectedCenter && selectedMovement && selectedItem && qty > 0 && empId !== '';
-  document.getElementById('btnSubmit').disabled = !ok;
+  // شاشة الحركة صارت تعتمد على مربعات اختيار متعددة بدل قائمة منسدلة
+  if (document.getElementById('movCatList') && selectedCenter) renderMovCategories();
 }
 
 // ======== INVENTORY COUNT (الجرد - جدول فئة كاملة) ========
@@ -1957,13 +2058,13 @@ async function onInvCategoryChange() {
 function renderInvTable() {
   const body = document.getElementById('invTableBody');
   const items = ITEMS[invCategory] || [];
-  const cache = window.STOCK_CACHE?.[invCenter] || {};
+  const byId = stockByIdFor(invCenter);
 
   document.getElementById('invTableTitle').textContent =
     `${invCategory} (${items.length} صنف)`;
 
   invRows = items.map(item => {
-    const c = cache[item.name] || {};
+    const c = byId[String(item.id)] || window.STOCK_CACHE?.[invCenter]?.[item.name] || {};
     return {
       id: item.id,
       name: item.name,
@@ -2115,86 +2216,46 @@ function resetInventoryForm() {
   document.getElementById('invFormSection').style.display = 'block';
 }
 
+// مؤشر الخطوات انحذف من شاشة الحركة — نخليها آمنة لو ناداها أي كود قديم
 function setStep(n) {
   for (let i = 1; i <= 4; i++) {
     const el = document.getElementById('step' + i);
+    if (!el) continue;
     if (i < n) el.className = 'step done';
     else if (i === n) el.className = 'step active';
     else el.className = 'step';
   }
 }
 
-function show(id) { document.getElementById(id).style.display = 'block'; }
-
-// ======== SUBMIT ========
-async function submitMovement() {
-  const btn = document.getElementById('btnSubmit');
-  btn.disabled = true;
-  btn.textContent = 'جاري الإرسال...';
-
-  const qty = parseInt(document.getElementById('inputQty').value);
-
-// تحقق من أن الكمية صحيحة
-if (isNaN(qty) || qty <= 0) {
-  alert("❌ أدخل كمية صحيحة أكبر من صفر.");
-  btn.disabled = false;
-  btn.textContent = 'تأكيد وإرسال';
-  return;
+function show(id) {
+  const el = document.getElementById(id);
+  if (el) el.style.display = 'block';
 }
 
-const currentStock =
-  window.STOCK_CACHE?.[selectedCenter]?.[selectedItem]?.qty ?? 0;
+// الحركة الجماعية بدّلت الدالة القديمة submitMovement (صنف واحد فقط)
 
-// منع السحب بأكثر من الكمية المتوفرة
-if (selectedMovement === 'سحب' && qty > currentStock) {
-  alert(`❌ لا يمكن سحب ${qty}.\n\nالمتوفر حالياً: ${currentStock}`);
-  btn.disabled = false;
-  btn.textContent = 'تأكيد وإرسال';
-  return;
+/**
+ * فهرس رصيد المركز حسب رقم الصنف بدل الاسم.
+ * الربط بالاسم هش: أي فرق بحرف أو مسافة بين تبويب الأصناف وشيت المركز
+ * يخلي الرصيد يُقرأ صفر بالغلط. الأرقام ثابتة ومتطابقة بكل التبويبات.
+ */
+function stockByIdFor(center) {
+  const cache = window.STOCK_CACHE?.[center] || {};
+  const byId = {};
+  Object.keys(cache).forEach(name => {
+    const e = cache[name];
+    if (!e) return;
+    if (e.id === undefined || e.id === null || e.id === '') return;
+    byId[String(e.id)] = Object.assign({ item: name }, e);
+  });
+  return byId;
 }
-  
-  const empId = document.getElementById('inputEmpId').value || '';
-  const empName = document.getElementById('inputEmpName').value || '';
-  const now = new Date();
-  const timestamp = `${now.toLocaleDateString('ar-SA')} ${now.toLocaleTimeString('ar-SA')}`;
 
-  const row = [timestamp, selectedCenter, selectedMovement, selectedItem, selectedCategory, qty, empId, empName];
-
-  try {
-    if (SCRIPT_URL) {
-        await apiPost({
-            action: "movement",
-            center: selectedCenter,
-            type: selectedMovement,
-            itemId: selectedItemId,
-            item: selectedItem,
-            category: selectedCategory,
-            qty: qty,
-            empId: empId,
-            empName: empName
-        });
-    }
-
-    // تحديث المركز الحالي فقط
-    await loadStockFromSheet(selectedCenter);
-
-    // تحديث سجل الحركات
-    await loadMovementsFromSheet();
-
-    // إعادة رسم الداشبورد
-    await loadDashboardUI();
-    
-    document.getElementById('successMsg').textContent =
-      `${selectedMovement === 'إضافة' ? '⬆️ أضفت' : '⬇️ سحبت'} ${qty} من ${selectedItem} في ${selectedCenter}`;
-    document.getElementById('formSection').style.display = 'none';
-    document.getElementById('successCard').classList.add('show');
-
-  } catch(e) {
-      console.error("SUBMIT ERROR:", e);
-    btn.disabled = false;
-    btn.textContent = 'تأكيد وإرسال';
-    alert('حدث خطأ، حاول مجدداً');
-  }
+// يجلب بيانات صنف واحد: بالرقم أولاً ثم بالاسم كخطة بديلة
+function stockFor(center, item) {
+  const byId = stockByIdFor(center);
+  if (item && item.id !== undefined && byId[String(item.id)]) return byId[String(item.id)];
+  return window.STOCK_CACHE?.[center]?.[item && item.name] || null;
 }
 
 async function loadStockFromSheet(center) {
@@ -2271,34 +2332,28 @@ function getSafety(center, item) {
 
 function resetForm() {
   selectedCenter = '';
-  selectedMovement = '';
-  selectedCategory = '';
-  selectedItem = '';
+  movRows = [];
+  movSelectedCats = [];
 
-  document.getElementById('selCenter').value = '';
-  document.getElementById('selCategory').value = '';
-  document.getElementById('selItem').style.display = 'none';
+  const selCenter = document.getElementById('selCenter');
+  if (selCenter) selCenter.value = '';
 
-  document.getElementById('inputQty').value = '';
+  const catBlock = document.getElementById('movCatBlock');
+  if (catBlock) catBlock.style.display = 'none';
+
+  const tableSec = document.getElementById('movTableSection');
+  if (tableSec) tableSec.style.display = 'none';
+
+  const tableBody = document.getElementById('movTableBody');
+  if (tableBody) tableBody.innerHTML = '';
 
   // لا تمسح بيانات الموظف
-  // document.getElementById('inputEmpId').value = '';
-  // document.getElementById('inputEmpName').value = '';
-
-  document.getElementById('btnAdd').className = 'mov-btn';
-  document.getElementById('btnSub').className = 'mov-btn';
-
-  ['stepBlock2','stepBlock3','stepBlock4'].forEach(id =>
-    document.getElementById(id).style.display = 'none'
-  );
-
-  setStep(1);
 
   document.getElementById('successCard').classList.remove('show');
   document.getElementById('formSection').style.display = 'block';
 
-  document.getElementById('btnSubmit').disabled = true;
-  document.getElementById('btnSubmit').textContent = 'تأكيد وإرسال';
+  const btn = document.getElementById('btnSubmit');
+  if (btn) { btn.disabled = true; btn.textContent = '✅ تأكيد وإرسال'; }
 }
 // ======== DASHBOARD ========
 const CENTER_NAMES = {
@@ -2381,12 +2436,14 @@ async function loadDashboardUI() {
         let warn = 0;
         let notTracked = 0;
 
+        const byId = stockByIdFor(center);
+
         Object.values(ITEMS).forEach(items => {
 
             items.forEach(item => {
 
                 const cacheItem =
-                    window.STOCK_CACHE?.[center]?.[item.name];
+                    byId[String(item.id)] || window.STOCK_CACHE?.[center]?.[item.name];
 
                 const level = cacheItem?.level || 'ok';
 
@@ -2653,11 +2710,12 @@ function renderDashList() {
 function getAlertItems() {
   let html = '';
   CENTERS.forEach(center => {
+    const byId = stockByIdFor(center);
     Object.entries(ITEMS).forEach(([cat, items]) => {
       items.forEach(item => {
 
     const itemName = item.name;
-    const cacheItem = window.STOCK_CACHE?.[center]?.[itemName];
+    const cacheItem = byId[String(item.id)] || window.STOCK_CACHE?.[center]?.[itemName];
     const stock = cacheItem?.qty ?? 0;
     const level = cacheItem?.level || 'ok';
 
@@ -2720,7 +2778,7 @@ function renderDetailContent(center) {
         items.forEach(item => {
 
             const itemName = item.name;
-            const cacheItem = window.STOCK_CACHE[center]?.[itemName] || {};
+            const cacheItem = stockFor(center, item) || {};
             const stock = cacheItem.qty ?? 0;
             const level = cacheItem.level || 'ok'; // ok | warn | critical | na
             const expiry = cacheItem.expiry || '';
