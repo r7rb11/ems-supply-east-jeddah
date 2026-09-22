@@ -1030,8 +1030,9 @@ flex:1;
           <h2 style="margin:0">الأصناف</h2>
           <div style="font-size:11px;color:var(--text2)" id="movChangedCount">ما دخلت أي كمية</div>
         </div>
-        <div style="font-size:11px;color:var(--text2);margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border)">
-          اكتب الكمية للأصناف اللي تحرّكها بس، واختر نوع الحركة جنب كل صنف. الصنف اللي تتركه فاضي ما يتأثر.
+        <div style="font-size:11px;color:var(--text2);margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border);line-height:1.7">
+          اكتب الكمية للأصناف اللي تحرّكها بس، واختر نوع الحركة جنب كل صنف. الصنف اللي تتركه فاضي ما يتأثر.<br>
+          📅 خانة تاريخ الانتهاء تظهر مع <b>الإضافة</b> فقط، والنظام يثبّت <b>الأقرب انتهاءً</b> بين التاريخ المسجّل والجديد.
         </div>
 
         <div id="movTableBody"></div>
@@ -1815,7 +1816,7 @@ function renderMovTable() {
         <div style="font-size:11px;color:var(--text2);margin-bottom:8px">
           المتوفر: ${r.curQty}${r.curExpiry ? ` · ينتهي: ${r.curExpiry}` : ''}
         </div>
-        <div style="display:grid;grid-template-columns:.8fr 1fr 1.2fr;gap:6px">
+        <div id="movFields_${i}" style="display:grid;grid-template-columns:.8fr 1fr 1.2fr;gap:6px">
           <div>
             <label style="font-size:10px;color:var(--text2);display:block;margin-bottom:3px">الكمية</label>
             <input type="number" min="1" id="movQ_${i}" placeholder="0" oninput="onMovFieldChange(${i})"
@@ -1829,7 +1830,7 @@ function renderMovTable() {
               <option value="سحب">⬇️ سحب</option>
             </select>
           </div>
-          <div>
+          <div id="movEBox_${i}">
             <label style="font-size:10px;color:var(--text2);display:block;margin-bottom:3px">تاريخ الانتهاء</label>
             <input type="date" id="movE_${i}" onchange="onMovFieldChange(${i})"
               style="width:100%;padding:9px 4px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);direction:ltr;margin:0;font-size:12px">
@@ -1851,14 +1852,18 @@ function getMovFilledRows() {
     const qty = Number(qEl.value);
     if (isNaN(qty) || qty <= 0) return;
 
+    const type = document.getElementById(`movT_${i}`).value;
+    const eEl = document.getElementById(`movE_${i}`);
+
     filled.push({
       idx: i,
       itemId: r.id,
       item: r.name,
       category: r.category,
       qty: qty,
-      type: document.getElementById(`movT_${i}`).value,
-      expiry: document.getElementById(`movE_${i}`).value || '',
+      type: type,
+      // التاريخ يُرسل مع الإضافة فقط — السحب ما يغيّر تاريخ الانتهاء المسجّل
+      expiry: (type === 'إضافة' && eEl) ? (eEl.value || '') : '',
       curQty: r.curQty
     });
   });
@@ -1870,15 +1875,35 @@ function onMovFieldChange(i) {
   const warn = document.getElementById(`movWarn_${i}`);
   const qEl = document.getElementById(`movQ_${i}`);
   const tEl = document.getElementById(`movT_${i}`);
+  const eBox = document.getElementById(`movEBox_${i}`);
+  const eEl = document.getElementById(`movE_${i}`);
+  const fields = document.getElementById(`movFields_${i}`);
   const r = movRows[i];
+
+  // تاريخ الانتهاء يظهر فقط مع الإضافة — السحب ما يسجّل تاريخ
+  const isAdd = tEl.value === 'إضافة';
+  if (eBox && fields) {
+    eBox.style.display = isAdd ? 'block' : 'none';
+    fields.style.gridTemplateColumns = isAdd ? '.8fr 1fr 1.2fr' : '.8fr 1fr';
+    if (!isAdd && eEl) eEl.value = '';
+  }
 
   const qty = Number(qEl.value);
   const hasQty = qEl.value !== '' && !isNaN(qty) && qty > 0;
 
   // تحذير فوري لو السحب أكبر من المتوفر
-  if (hasQty && tEl.value === 'سحب' && qty > r.curQty) {
+  if (hasQty && !isAdd && qty > r.curQty) {
     warn.style.display = 'block';
+    warn.style.color = 'var(--red)';
     warn.textContent = `❌ المتوفر ${r.curQty} فقط — ما تقدر تسحب ${qty}`;
+  } else if (isAdd && eEl && eEl.value && r.curExpiry) {
+    // بيان فوري لنتيجة المقارنة بين التاريخ المسجّل والجديد
+    const keep = (eEl.value <= r.curExpiry) ? eEl.value : r.curExpiry;
+    warn.style.display = 'block';
+    warn.style.color = 'var(--text2)';
+    warn.textContent = (keep === eEl.value)
+      ? `📅 الجديد أقرب — بينحفظ ${keep} (بدل ${r.curExpiry})`
+      : `📅 المسجّل أقرب — بيضل ${keep} كما هو`;
   } else {
     warn.style.display = 'none';
   }
